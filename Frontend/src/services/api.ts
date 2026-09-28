@@ -82,7 +82,11 @@ export const api = {
     deleteAddress: (addressId: string) =>
       request(`/auth/addresses/${addressId}`, { method: 'DELETE' }),
     logout: () =>
-      request('/auth/logout', { method: 'POST' })
+      request('/auth/logout', { method: 'POST' }),
+    testLogin: (email: string, password: string) =>
+      request('/auth/test-login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+    getTestLoginStatus: () =>
+      request('/auth/test-login-status')
   },
 
   // Restaurants & Dishes

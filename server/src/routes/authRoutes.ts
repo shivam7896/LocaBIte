@@ -8,11 +8,16 @@ import {
   verifyOtpSchema,
   signupSchema,
   loginSchema,
+  testLoginSchema,
   updatePreferencesSchema,
   addressSchema
 } from '../validations/authValidation';
 
 const router = Router();
+
+// Dedicated Razorpay Automated Review Test Login (Guarded by ENABLE_RAZORPAY_TEST_LOGIN)
+router.get('/test-login-status', AuthController.getTestLoginStatus);
+router.post('/test-login', authRateLimiter, validateRequest(testLoginSchema), AuthController.testLogin);
 
 // Public Authentication
 router.post('/send-otp', authRateLimiter, validateRequest(sendOtpSchema), AuthController.sendOtp);

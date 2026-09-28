@@ -557,4 +557,135 @@ export class AuthController {
       return sendError(res, err.message, 500);
     }
   }
+
+  /**
+   * Dedicated Test Login Status Check for Razorpay Reviewer
+   */
+  static async getTestLoginStatus(_req: AuthenticatedRequest, res: Response): Promise<any> {
+    const isEnabled = env.ENABLE_RAZORPAY_TEST_LOGIN === 'true';
+    if (!isEnabled) {
+      return sendError(res, 'Test login is disabled in this environment.', 404);
+    }
+    return sendResponse({
+      res,
+      message: 'Test login portal is active for Razorpay website review.',
+      data: {
+        enabled: true
+      }
+    });
+  }
+
+  /**
+   * Dedicated Test Login Endpoint for Razorpay Automated Website Review
+   * Available strictly when ENABLE_RAZORPAY_TEST_LOGIN === 'true'.
+   * Authenticates only the configured test credentials. Never accepts arbitrary users or grants admin access.
+   */
+  static async testLogin(req: AuthenticatedRequest, res: Response): Promise<any> {
+    // 1. Guard check: only allowed if explicitly enabled via environment variable
+    const isEnabled = env.ENABLE_RAZORPAY_TEST_LOGIN === 'true';
+    if (!isEnabled) {
+      return sendError(res, 'Test login is disabled in this environment.', 404);
+    }
+
+    const { email, password } = req.body;
+
+    const expectedEmail = (env.TEST_LOGIN_EMAIL || '').trim().toLowerCase();
+    const expectedPassword = env.TEST_LOGIN_PASSWORD || '';
+
+    // 2. Strict matching with configured test credentials
+    const inputEmail = (email || '').trim().toLowerCase();
+    const inputPassword = password || '';
+
+    if (
+      !expectedEmail ||
+      !expectedPassword ||
+      inputEmail !== expectedEmail ||
+      inputPassword !== expectedPassword
+    ) {
+      return sendError(res, 'Invalid test credentials.', 401);
+    }
+
+    try {
+      // 3. Find or auto-provision the dedicated review test customer account
+      let testUser = await User.findOne({ email: expectedEmail });
+
+      if (!testUser) {
+        testUser = new User({
+          name: 'Razorpay Reviewer',
+          phone: '+91 98888 77777',
+          email: expectedEmail,
+          role: 'customer', // MUST strictly be customer (NO admin privileges)
+          isTestAccount: true,
+          membershipLevel: 'Silver Member',
+          loyaltyCoins: 500,
+          preferences: {
+            dietary: ['veg', 'non-veg'],
+            categories: ['Burgers', 'North Indian', 'Groceries'],
+            orderStyle: ['food', 'mart']
+          },
+          addresses: [
+            {
+              id: 'addr-rzp-test-1',
+              title: 'Review Office / Campus Lab',
+              type: 'department',
+              campus: 'Quantum University, Roorkee',
+              building: 'Evaluation Wing',
+              room: 'Test Suite 101',
+              landmark: 'Near Central Library',
+              phone: '+91 98888 77777',
+              isPrimary: true
+            }
+          ]
+        });
+      } else {
+        // Enforce customer role and test account flag
+        testUser.role = 'customer';
+        testUser.isTestAccount = true;
+        if (!testUser.addresses || testUser.addresses.length === 0) {
+          testUser.addresses = [
+            {
+              id: 'addr-rzp-test-1',
+              title: 'Review Office / Campus Lab',
+              type: 'department',
+              campus: 'Quantum University, Roorkee',
+              building: 'Evaluation Wing',
+              room: 'Test Suite 101',
+              landmark: 'Near Central Library',
+              phone: '+91 98888 77777',
+              isPrimary: true
+            }
+          ];
+        }
+      }
+
+      // 4. Issue standard authenticated customer JWT session
+      const tokenPayload = {
+        userId: testUser._id.toString(),
+        role: testUser.role, // 'customer'
+        email: testUser.email,
+        phone: testUser.phone
+      };
+
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+
+      testUser.refreshToken = refreshToken;
+      await testUser.save();
+
+      logger.info(`[TEST AUTH] Razorpay reviewer authenticated successfully as <${expectedEmail}>.`);
+
+      return sendResponse({
+        res,
+        message: 'Test authentication successful',
+        data: {
+          user: testUser,
+          accessToken,
+          refreshToken
+        }
+      });
+    } catch (err: any) {
+      logger.error(`[TEST AUTH] Error during test login: ${err.message}`);
+      return sendError(res, 'Authentication failed', 500);
+    }
+  }
 }

@@ -34,6 +34,11 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Password is required')
 });
 
+export const testLoginSchema = z.object({
+  email: z.string().email('Valid test email is required'),
+  password: z.string().min(1, 'Test password is required')
+});
+
 export const updatePreferencesSchema = z.object({
   dietary: z.array(z.enum(['veg', 'non-veg', 'egg', 'vegan'])).default([]),
   orderStyle: z.array(z.enum(['food', 'mart'])).default([])

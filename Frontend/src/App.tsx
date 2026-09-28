@@ -18,6 +18,7 @@ import { AuthPage } from './pages/AuthPage';
 import { OnboardingPage } from './pages/OnboardingPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { RiderDashboard } from './pages/RiderDashboard';
+import { TestLoginPage } from './pages/TestLoginPage';
 
 // Scroll to top helper
 const ScrollToTop = () => {
@@ -51,6 +52,7 @@ export const App: React.FC = () => {
                   <Route path="/tracking" element={<OrderTrackingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
                   <Route path="/login" element={<AuthPage />} />
+                  <Route path="/test-login" element={<TestLoginPage />} />
                   <Route path="/onboarding" element={<OnboardingPage />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/admin/*" element={<AdminDashboard />} />

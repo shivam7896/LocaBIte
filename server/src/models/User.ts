@@ -27,6 +27,7 @@ export interface IUser extends Document {
   refreshToken?: string;
   isActive: boolean;
   welcomeEmailSent?: boolean;
+  isTestAccount?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -80,6 +81,7 @@ const UserSchema = new Schema<IUser>(
     otpExpiresAt: { type: Date },
     refreshToken: { type: String },
     welcomeEmailSent: { type: Boolean, default: false },
+    isTestAccount: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true }
   },
   {

@@ -24,7 +24,10 @@ const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().default('"LocaBite Campus" <no-reply@locabite.com>'),
   RESEND_API_KEY: z.string().optional(),
-  RESEND_FROM_EMAIL: z.string().default('LocaBite <onboarding@resend.dev>')
+  RESEND_FROM_EMAIL: z.string().default('LocaBite <onboarding@resend.dev>'),
+  ENABLE_RAZORPAY_TEST_LOGIN: z.string().default('false'),
+  TEST_LOGIN_EMAIL: z.string().default('razorpay.tester@locabite.com'),
+  TEST_LOGIN_PASSWORD: z.string().default('RazorpayTestPass@2026')
 });
 
 export const env = envSchema.parse(process.env);
