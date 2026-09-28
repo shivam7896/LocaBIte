@@ -1,0 +1,15 @@
+# Frontend .gitignore
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.env
+.env.*
+!.env.example
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+*.tsbuildinfo

@@ -1,0 +1,311 @@
+{
+  "mutations": [],
+  "queries": [
+    {
+      "state": {
+        "dataUpdateCount": 0,
+        "dataUpdatedAt": 0,
+        "error": null,
+        "errorUpdateCount": 0,
+        "errorUpdatedAt": 0,
+        "fetchFailureCount": 0,
+        "fetchMeta": null,
+        "isInvalidated": false,
+        "status": "loading",
+        "fetchStatus": "idle"
+      },
+      "queryKey": [
+        "store-preview_store"
+      ],
+      "queryHash": "[\"store-preview_store\"]"
+    },
+    {
+      "state": {
+        "data": {
+          "key_id": "rzp_live_T2ec2SuEMsoaY5",
+          "is_test_mode": false,
+          "environment": "prod",
+          "merchant": {
+            "id": "T2ec2SuEMsoaY5",
+            "name": "POONAM BAJPAI",
+            "image": "https://cdn.razorpay.com/logos/T3tQKJTdeCf7dk_large.jpg",
+            "brand_color": "rgb(1,0,127)",
+            "brand_text_color": "#01007F",
+            "support_details": {
+              "support_email": "thebachelorspot@gmail.com",
+              "support_mobile": "8707046586"
+            },
+            "is_suspended": false,
+            "policy_url": ""
+          },
+          "store": {
+            "id": "st_TYnRD3iI21IWyp",
+            "currency": "INR",
+            "title": "Pure South Indian Chutmalpur",
+            "description": "",
+            "slug": "",
+            "status": "active",
+            "store_url": "",
+            "notes": {},
+            "created_at": 1788707578,
+            "updated_at": 1788707578,
+            "settings": {
+              "theme": null,
+              "udf_schema": null,
+              "allow_multiple_units": null,
+              "allow_social_share": null,
+              "payment_success_redirect_url": null,
+              "payment_success_message": null,
+              "payment_button_label": null,
+              "payment_button_text": null,
+              "payment_button_theme": null,
+              "payment_button_template_type": null,
+              "pp_fb_pixel_tracking_id": null,
+              "pp_ga_pixel_tracking_id": null,
+              "pp_fb_event_add_to_cart_enabled": null,
+              "pp_fb_event_initiate_payment_enabled": null,
+              "pp_fb_event_payment_complete_enabled": null,
+              "enable_receipt": "1",
+              "selected_udf_field": null,
+              "enable_custom_serial_number": null,
+              "enable_80g_details": null,
+              "support_contact": "8707046586",
+              "support_email": "thebachelorspot@gmail.com",
+              "custom_domain": null,
+              "image_url_80g": null,
+              "text_80g_12a": null,
+              "partner_webhook_settings": null,
+              "captured_payments_count": null,
+              "default_payment_handle.default_payment_handle_page_id": null,
+              "default_payment_handle.default_payment_handle": null,
+              "version": null,
+              "base_config": null
+            },
+            "products": [
+              {
+                "id": "li_TYnRD6hqhBToIj",
+                "name": "Butter Masala Dosa",
+                "description": "Butter Masala Dosa From Pure South Indian Chutmalpur",
+                "images": [],
+                "selling_price": 11500,
+                "discounted_price": 9500,
+                "stock": -1,
+                "stock_available": 0,
+                "stock_sold": 0,
+                "status": "unlimited",
+                "categories": [
+                  {
+                    "id": "cat_others",
+                    "name": "Others",
+                    "alias": "others"
+                  }
+                ]
+              },
+              {
+                "id": "li_TYnRD6HTnBVwzy",
+                "name": "Masala Dosa ",
+                "description": "Masala Dosa from Pure South Indian Chutmalpur",
+                "images": [],
+                "selling_price": 10000,
+                "discounted_price": 7500,
+                "stock": -1,
+                "stock_available": 0,
+                "stock_sold": 0,
+                "status": "unlimited",
+                "categories": [
+                  {
+                    "id": "cat_others",
+                    "name": "Others",
+                    "alias": "others"
+                  }
+                ]
+              },
+              {
+                "id": "li_TYnRD6yFygbhbp",
+                "name": "Paneer Masala Dosa",
+                "description": "",
+                "images": [],
+                "selling_price": 13000,
+                "discounted_price": 11500,
+                "stock": -1,
+                "stock_available": 0,
+                "stock_sold": 0,
+                "status": "unlimited",
+                "categories": [
+                  {
+                    "id": "cat_others",
+                    "name": "Others",
+                    "alias": "others"
+                  }
+                ]
+              },
+              {
+                "id": "li_TYnRD7F2J3IFaq",
+                "name": "Idli (2 PC)",
+                "description": "Idli from Pure South Indian Chutmalpur",
+                "images": [],
+                "selling_price": 10000,
+                "discounted_price": 7000,
+                "stock": -1,
+                "stock_available": 0,
+                "stock_sold": 0,
+                "status": "unlimited",
+                "categories": [
+                  {
+                    "id": "cat_others",
+                    "name": "Others",
+                    "alias": "others"
+                  }
+                ]
+              },
+              {
+                "id": "li_TYnRD7VSqNIKtm",
+                "name": "Special Sandwich",
+                "description": "Special Sandwich By Pure South Indian Chutmalpur",
+                "images": [],
+                "selling_price": 12000,
+                "discounted_price": 8900,
+                "stock": -1,
+                "stock_available": 0,
+                "stock_sold": 0,
+                "status": "unlimited",
+                "categories": [
+                  {
+                    "id": "cat_others",
+                    "name": "Others",
+                    "alias": "others"
+                  }
+                ]
+              }
+            ],
+            "banner_images": null,
+            "social_handles": null,
+            "terms": "",
+            "storefront_v1_enabled": false,
+            "categories": [
+              {
+                "categoryName": "Others",
+                "products": [
+                  {
+                    "id": "li_TYnRD6hqhBToIj",
+                    "name": "Butter Masala Dosa",
+                    "description": "Butter Masala Dosa From Pure South Indian Chutmalpur",
+                    "images": [],
+                    "selling_price": 11500,
+                    "discounted_price": 9500,
+                    "stock": -1,
+                    "stock_available": 0,
+                    "stock_sold": 0,
+                    "status": "unlimited",
+                    "categories": [
+                      {
+                        "id": "cat_others",
+                        "name": "Others",
+                        "alias": "others"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "li_TYnRD6HTnBVwzy",
+                    "name": "Masala Dosa ",
+                    "description": "Masala Dosa from Pure South Indian Chutmalpur",
+                    "images": [],
+                    "selling_price": 10000,
+                    "discounted_price": 7500,
+                    "stock": -1,
+                    "stock_available": 0,
+                    "stock_sold": 0,
+                    "status": "unlimited",
+                    "categories": [
+                      {
+                        "id": "cat_others",
+                        "name": "Others",
+                        "alias": "others"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "li_TYnRD6yFygbhbp",
+                    "name": "Paneer Masala Dosa",
+                    "description": "",
+                    "images": [],
+                    "selling_price": 13000,
+                    "discounted_price": 11500,
+                    "stock": -1,
+                    "stock_available": 0,
+                    "stock_sold": 0,
+                    "status": "unlimited",
+                    "categories": [
+                      {
+                        "id": "cat_others",
+                        "name": "Others",
+                        "alias": "others"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "li_TYnRD7F2J3IFaq",
+                    "name": "Idli (2 PC)",
+                    "description": "Idli from Pure South Indian Chutmalpur",
+                    "images": [],
+                    "selling_price": 10000,
+                    "discounted_price": 7000,
+                    "stock": -1,
+                    "stock_available": 0,
+                    "stock_sold": 0,
+                    "status": "unlimited",
+                    "categories": [
+                      {
+                        "id": "cat_others",
+                        "name": "Others",
+                        "alias": "others"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "li_TYnRD7VSqNIKtm",
+                    "name": "Special Sandwich",
+                    "description": "Special Sandwich By Pure South Indian Chutmalpur",
+                    "images": [],
+                    "selling_price": 12000,
+                    "discounted_price": 8900,
+                    "stock": -1,
+                    "stock_available": 0,
+                    "stock_sold": 0,
+                    "status": "unlimited",
+                    "categories": [
+                      {
+                        "id": "cat_others",
+                        "name": "Others",
+                        "alias": "others"
+                      }
+                    ]
+                  }
+                ],
+                "categoryCount": 5,
+                "categoryId": "others"
+              }
+            ]
+          },
+          "base_url": "https://api.razorpay.com",
+          "checkout_id": "st_TYnRD3iI21IWyp",
+          "keyless_header": "nocodeapps_10000:nK9Kg/I9NGePriFsFh2EyxccdN6n/eBuE7qer1NweJFv2H6sLSbOGJkbSHWUXehl4UxHRd5mH4l+bZt30/hq1672fp4KMwzDYVH0q14Nqw=="
+        },
+        "dataUpdateCount": 1,
+        "dataUpdatedAt": 1790338560182,
+        "error": null,
+        "errorUpdateCount": 0,
+        "errorUpdatedAt": 0,
+        "fetchFailureCount": 0,
+        "fetchMeta": null,
+        "isInvalidated": false,
+        "status": "success",
+        "fetchStatus": "idle"
+      },
+      "queryKey": [
+        "store-st_TYnRD3iI21IWyp"
+      ],
+      "queryHash": "[\"store-st_TYnRD3iI21IWyp\"]"
+    }
+  ]
+}
