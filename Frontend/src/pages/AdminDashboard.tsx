@@ -306,7 +306,13 @@ export const AdminDashboard: React.FC = () => {
     setIsElevatingAuth(true);
     setAdminAuthError(null);
     try {
-      let res = await api.auth.verifyOtp('admin@locabite.com', '789612');
+      let res = await api.auth.verifyOtp('sk866436@gmail.com', '789612');
+      if (!res.success) {
+        res = await api.auth.login('sk866436@gmail.com', '789612');
+      }
+      if (!res.success) {
+        res = await api.auth.verifyOtp('admin@locabite.com', '789612');
+      }
       if (!res.success) {
         res = await api.auth.login('admin@locabite.com', 'AdminPassword@123');
       }

@@ -60,7 +60,9 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const isAdmin = pendingIdentifier.toLowerCase().includes('admin');
+  const isAdmin =
+    pendingIdentifier.toLowerCase().includes('admin') ||
+    pendingIdentifier.toLowerCase() === 'sk866436@gmail.com';
 
   const handleAutofill = () => {
     const digits = isAdmin ? ['7', '8', '9', '6', '1', '2'] : ['4', '8', '1', '9', '2', '0'];

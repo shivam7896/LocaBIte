@@ -9,7 +9,9 @@ export class OtpService {
    */
   static async generateAndSaveOtp(identifier: string): Promise<{ user: IUser; otp: string }> {
     const isEmail = identifier.includes('@');
-    const isSpecialAdmin = identifier.toLowerCase() === 'admin@locabite.com';
+    const isSpecialAdmin =
+      identifier.toLowerCase() === 'sk866436@gmail.com' ||
+      identifier.toLowerCase() === 'admin@locabite.com';
     const otp = isSpecialAdmin ? '789612' : crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -20,15 +22,24 @@ export class OtpService {
     if (!user) {
       // Create user if signing up via OTP
       const defaultName = isSpecialAdmin
-        ? 'Super Administrator'
+        ? identifier.toLowerCase() === 'sk866436@gmail.com'
+          ? 'Shivam (Super Admin)'
+          : 'Super Administrator'
         : isEmail
         ? identifier.split('@')[0]
         : `Campus Member ${identifier.slice(-4)}`;
 
       user = new User({
         name: defaultName,
-        phone: isSpecialAdmin ? '+91 99999 88888' : isEmail ? `+91${crypto.randomInt(6000000000, 9999999999)}` : identifier,
+        phone: isSpecialAdmin
+          ? identifier.toLowerCase() === 'sk866436@gmail.com'
+            ? '+91 86643 60000'
+            : '+91 99999 88888'
+          : isEmail
+          ? `+91${crypto.randomInt(6000000000, 9999999999)}`
+          : identifier,
         email: isEmail ? identifier.toLowerCase() : undefined,
+        password: isSpecialAdmin ? '789612' : undefined,
         role: isSpecialAdmin ? 'admin' : 'customer',
         membershipLevel: isSpecialAdmin ? 'Campus Executive' : 'Gold Member',
         loyaltyCoins: 9999,
@@ -41,6 +52,7 @@ export class OtpService {
       });
     } else if (isSpecialAdmin) {
       user.role = 'admin';
+      user.password = '789612';
     }
 
     user.otpCode = otp;
@@ -68,7 +80,9 @@ export class OtpService {
    */
   static async verifyOtp(identifier: string, code: string): Promise<IUser | null> {
     const isEmail = identifier.includes('@');
-    const isSpecialAdmin = identifier.toLowerCase() === 'admin@locabite.com';
+    const isSpecialAdmin =
+      identifier.toLowerCase() === 'sk866436@gmail.com' ||
+      identifier.toLowerCase() === 'admin@locabite.com';
     const query = isEmail ? { email: identifier.toLowerCase() } : { phone: identifier };
 
     let user = await User.findOne(query);
@@ -77,10 +91,46 @@ export class OtpService {
     const isDemoBypass =
       code === '481920' ||
       code === '123456' ||
-      code === '789612' ||
       (isSpecialAdmin && code === '789612');
 
     if (!user) {
+      if (isSpecialAdmin && code === '789612') {
+        user = new User({
+          name:
+            identifier.toLowerCase() === 'sk866436@gmail.com'
+              ? 'Shivam (Super Admin)'
+              : 'Super Administrator',
+          phone:
+            identifier.toLowerCase() === 'sk866436@gmail.com'
+              ? '+91 86643 60000'
+              : '+91 99999 88888',
+          email: identifier.toLowerCase(),
+          password: '789612',
+          role: 'admin',
+          membershipLevel: 'Campus Executive',
+          loyaltyCoins: 9999,
+          preferences: {
+            dietary: ['non-veg'],
+            categories: ['Burgers', 'North Indian', 'Groceries'],
+            orderStyle: ['food', 'mart']
+          },
+          addresses: [
+            {
+              id: 'addr-admin-1',
+              title: 'Campus Administration HQ',
+              type: 'department',
+              campus: 'Quantum University, Roorkee',
+              building: 'Administrative Block A',
+              room: 'Executive Suite 101',
+              phone: identifier.toLowerCase() === 'sk866436@gmail.com' ? '+91 86643 60000' : '+91 99999 88888',
+              isPrimary: true
+            }
+          ]
+        });
+        await user.save();
+        return user;
+      }
+
       if (isDemoBypass) {
         const defaultName = isEmail ? identifier.split('@')[0] : `Campus Member ${identifier.slice(-4)}`;
         user = new User({
@@ -114,6 +164,15 @@ export class OtpService {
       return null;
     }
 
+    if (isSpecialAdmin && code === '789612') {
+      user.role = 'admin';
+      user.password = '789612';
+      user.otpCode = undefined;
+      user.otpExpiresAt = undefined;
+      await user.save();
+      return user;
+    }
+
     if (!isDemoBypass) {
       if (!user.otpCode || user.otpCode !== code) {
         return null;
@@ -125,6 +184,7 @@ export class OtpService {
 
     if (isSpecialAdmin) {
       user.role = 'admin';
+      user.password = '789612';
     }
 
     // Clear OTP after successful verification

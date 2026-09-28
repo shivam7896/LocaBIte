@@ -94,6 +94,16 @@ const seed = async (disconnectAfter = true) => {
         }
       },
       {
+        name: 'Shivam (Super Admin)',
+        phone: '+91 86643 60000',
+        email: 'sk866436@gmail.com',
+        password: '789612',
+        role: 'admin',
+        membershipLevel: 'Campus Executive',
+        loyaltyCoins: 9999,
+        addresses: []
+      },
+      {
         name: 'LocaBite Admin',
         phone: '+91 99999 88888',
         email: 'admin@locabite.com',
