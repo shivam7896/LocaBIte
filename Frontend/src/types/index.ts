@@ -17,6 +17,7 @@ export interface CustomizationGroup {
 
 export interface MenuItem {
   id: string;
+  _id?: string;
   restaurantId: string;
   name: string;
   description: string;
@@ -34,10 +35,12 @@ export interface MenuItem {
   isPopular?: boolean;
   isCustomizable?: boolean;
   customizationGroups?: CustomizationGroup[];
+  [key: string]: any;
 }
 
 export interface Product {
   id: string;
+  _id?: string;
   sku: string;
   name: string;
   description: string;
@@ -61,10 +64,12 @@ export interface Product {
   rating?: number;
   reviewsCount?: number;
   status: 'active' | 'draft' | 'disabled';
+  [key: string]: any;
 }
 
 export interface Restaurant {
   id: string;
+  _id?: string;
   name: string;
   slug: string;
   tagline: string;
@@ -84,10 +89,12 @@ export interface Restaurant {
   fssaiLicense?: string;
   categories: string[];
   menu: MenuItem[];
+  [key: string]: any;
 }
 
 export interface GroceryItem {
   id: string;
+  _id?: string;
   name: string;
   category: string;
   subCategory?: string;
@@ -99,6 +106,7 @@ export interface GroceryItem {
   image: string;
   inStock: boolean;
   tags?: string[];
+  [key: string]: any;
 }
 
 export interface CartItem {
