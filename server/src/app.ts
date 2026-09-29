@@ -62,6 +62,17 @@ export const createApp = (): Application => {
   app.use('/api', apiRouter);
   app.use('/api/v1', apiRouter);
 
+  // Root Service Welcome
+  app.get('/', (_req, res) => {
+    res.status(200).json({
+      status: 'online',
+      message: 'LocaBite Production API is running',
+      version: '1.0.0',
+      client: 'https://loca-bite.vercel.app',
+      health: '/api/health'
+    });
+  });
+
   // Fallback 404 and Global Error Handler
   app.use(notFoundHandler);
   app.use(errorHandler);
