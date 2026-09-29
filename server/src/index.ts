@@ -28,7 +28,7 @@ const startServer = async () => {
 
     // 4. Start Listening
     const port = Number(env.PORT) || 5000;
-    server.listen(port, () => {
+    server.listen(port, '0.0.0.0', () => {
       logger.info(`====================================================`);
       logger.info(`🚀 LocaBite Backend Server is running!`);
       logger.info(`📡 Port: ${port}`);
