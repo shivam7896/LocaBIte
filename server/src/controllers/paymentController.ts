@@ -127,7 +127,7 @@ export class PaymentController {
    */
   static async handleWebhook(req: Request, res: Response): Promise<any> {
     const signature = req.headers['x-razorpay-signature'] as string;
-    const rawBody = JSON.stringify(req.body);
+    const rawBody = (req as any).rawBody || JSON.stringify(req.body);
 
     if (!signature || !PaymentService.verifyWebhookSignature(rawBody, signature)) {
       logger.warn('[Webhook] Invalid Razorpay webhook signature');
@@ -138,17 +138,37 @@ export class PaymentController {
     logger.info(`[Webhook] Received Razorpay event: ${event}`);
 
     try {
-      if (event === 'payment.captured') {
-        const paymentEntity = req.body.payload.payment.entity;
-        const razorpayOrderId = paymentEntity.order_id;
-        const order = await Order.findOne({ razorpayOrderId });
-        if (order && order.paymentStatus !== 'paid') {
-          order.paymentStatus = 'paid';
-          order.status = 'confirmed';
-          await order.save();
-          emitOrderStatusUpdate(order.id, order);
+      if (event === 'payment.captured' || event === 'order.paid') {
+        const paymentEntity = req.body.payload?.payment?.entity;
+        const orderEntity = req.body.payload?.order?.entity;
+        const razorpayOrderId = paymentEntity?.order_id || orderEntity?.id;
+
+        if (razorpayOrderId) {
+          const order = await Order.findOne({ razorpayOrderId });
+          if (order && order.paymentStatus !== 'paid') {
+            order.paymentStatus = 'paid';
+            if (order.status === 'placed') {
+              order.status = 'confirmed';
+            }
+            await order.save();
+            emitOrderStatusUpdate(order.id, order);
+            logger.info(`[Webhook] Order ${order.id} marked as paid via webhook (${event})`);
+          }
+        }
+      } else if (event === 'payment.failed') {
+        const paymentEntity = req.body.payload?.payment?.entity;
+        const razorpayOrderId = paymentEntity?.order_id;
+        if (razorpayOrderId) {
+          const order = await Order.findOne({ razorpayOrderId });
+          if (order && order.paymentStatus !== 'paid') {
+            order.paymentStatus = 'failed';
+            await order.save();
+            emitOrderStatusUpdate(order.id, order);
+            logger.info(`[Webhook] Order ${order.id} marked as failed via webhook`);
+          }
         }
       }
+
       return res.status(200).json({ status: 'ok' });
     } catch (err: any) {
       logger.error('[Webhook] Error processing webhook:', err.message);

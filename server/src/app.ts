@@ -16,6 +16,7 @@ export const createApp = (): Application => {
   // Cross-Origin Resource Sharing
   const allowedOrigins = [
     env.CLIENT_URL,
+    'https://loca-bite.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:5174',
@@ -25,10 +26,10 @@ export const createApp = (): Application => {
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
           callback(null, true);
         } else {
-          callback(null, true); // Permissive in dev/local for ease of pairing
+          callback(null, true); // Permissive for ease of deployment
         }
       },
       credentials: true,
@@ -38,7 +39,14 @@ export const createApp = (): Application => {
   );
 
   // Request Parsers
-  app.use(express.json({ limit: '10mb' }));
+  app.use(
+    express.json({
+      limit: '10mb',
+      verify: (req: any, _res, buf) => {
+        req.rawBody = buf.toString('utf8');
+      }
+    })
+  );
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // HTTP Request Logger

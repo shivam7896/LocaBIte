@@ -8,6 +8,7 @@ let io: SocketIOServer | null = null;
 export const initSocket = (server: HttpServer): SocketIOServer => {
   const allowedOrigins = [
     env.CLIENT_URL,
+    'https://loca-bite.vercel.app',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:5174',
@@ -18,7 +19,7 @@ export const initSocket = (server: HttpServer): SocketIOServer => {
 
     cors: {
       origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV !== 'production') {
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || env.NODE_ENV !== 'production') {
           callback(null, true);
         } else {
           callback(null, true);

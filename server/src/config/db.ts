@@ -12,9 +12,9 @@ export const connectDatabase = async (): Promise<typeof mongoose> => {
   try {
     logger.info(`Connecting to MongoDB at: ${env.MONGODB_URI.replace(/:\/\/.*@/, '://<credentials>@')}`);
     
-    // Set connection timeout to 4000ms so fallback activates quickly if no server is running
+    // Set connection timeout to 15000ms for stable cloud Atlas handshake
     await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 4000
+      serverSelectionTimeoutMS: 15000
     });
     
     isConnected = true;
