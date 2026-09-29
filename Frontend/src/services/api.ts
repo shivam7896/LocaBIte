@@ -9,11 +9,18 @@ import {
 } from '../data/fallbackData';
 
 const API_BASE_URL = typeof window !== 'undefined'
-  ? ((import.meta as any).env?.VITE_API_URL || '/api')
-  : 'http://localhost:5000/api';
+  ? ((import.meta as any).env?.VITE_API_URL ||
+     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? '/api'
+        : 'https://locabite.onrender.com/api'))
+  : 'https://locabite.onrender.com/api';
+
 const SOCKET_URL = typeof window !== 'undefined'
-  ? ((import.meta as any).env?.VITE_SOCKET_URL || window.location.origin)
-  : 'http://localhost:5000';
+  ? ((import.meta as any).env?.VITE_SOCKET_URL ||
+     (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? window.location.origin
+        : 'https://locabite.onrender.com'))
+  : 'https://locabite.onrender.com';
 
 let socketInstance: Socket | null = null;
 

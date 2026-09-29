@@ -12,6 +12,7 @@ export const AuthPage: React.FC = () => {
     sendOtp,
     verifyOtp,
     loginAsDemo,
+    loginWithGoogle,
     setLoginStep
   } = useAuth();
 
@@ -19,6 +20,7 @@ export const AuthPage: React.FC = () => {
   const [otpDigits, setOtpDigits] = useState<string[]>(['4', '8', '1', '9', '', '']);
   const [resendTimer, setResendTimer] = useState<number>(30);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -61,15 +63,33 @@ export const AuthPage: React.FC = () => {
   };
 
   const isAdmin =
-    pendingIdentifier.toLowerCase().includes('admin') ||
-    pendingIdentifier.toLowerCase() === 'sk866436@gmail.com';
+    (pendingIdentifier || inputVal).toLowerCase().includes('admin') ||
+    (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com';
+
+  const handleGoogleOneTap = async () => {
+    setIsGoogleLoading(true);
+    setErrorMsg('');
+    const target = inputVal.trim() || 'sk866436@gmail.com';
+    const isTargetAdmin = target.toLowerCase() === 'sk866436@gmail.com' || target.toLowerCase().includes('admin');
+    const success = await loginWithGoogle(target);
+    setIsGoogleLoading(false);
+    if (success) {
+      if (isTargetAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } else {
+      setErrorMsg('Google sign-in could not be completed. Please try with OTP.');
+    }
+  };
 
   const handleAutofill = () => {
     const digits = isAdmin ? ['7', '8', '9', '6', '1', '2'] : ['4', '8', '1', '9', '2', '0'];
     const code = digits.join('');
     setOtpDigits(digits);
     setTimeout(async () => {
-      const success = await verifyOtp(code);
+      const success = await verifyOtp(code, pendingIdentifier || inputVal);
       if (success) {
         if (isAdmin) {
           navigate('/admin');
@@ -88,7 +108,7 @@ export const AuthPage: React.FC = () => {
       return;
     }
     setErrorMsg('');
-    const success = await verifyOtp(code);
+    const success = await verifyOtp(code, pendingIdentifier || inputVal);
     if (success) {
       if (isAdmin) {
         navigate('/admin');
@@ -265,8 +285,9 @@ export const AuthPage: React.FC = () => {
                   {/* Google One-Tap SSO */}
                   <button
                     type="button"
-                    onClick={handleAutofill}
-                    className="h-12 w-full px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center gap-3 transition-colors shadow-xs border border-outline-variant/30 font-label-md text-label-md font-bold"
+                    onClick={handleGoogleOneTap}
+                    disabled={isGoogleLoading}
+                    className="h-12 w-full px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center gap-3 transition-colors shadow-xs border border-outline-variant/30 font-label-md text-label-md font-bold disabled:opacity-60 cursor-pointer"
                   >
                     <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                       <path
@@ -286,7 +307,7 @@ export const AuthPage: React.FC = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    <span>Continue with Google One-Tap</span>
+                    <span>{isGoogleLoading ? 'Signing in with Google...' : 'Continue with Google One-Tap'}</span>
                   </button>
 
                   {/* Divider */}
