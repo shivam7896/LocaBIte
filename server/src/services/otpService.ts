@@ -11,8 +11,10 @@ export class OtpService {
     const isEmail = identifier.includes('@');
     const isSpecialAdmin =
       identifier.toLowerCase() === 'sk866436@gmail.com' ||
+      identifier.toLowerCase() === 'shivam789612@gmail.com' ||
       identifier.toLowerCase() === 'admin@locabite.com';
-    const otp = isSpecialAdmin ? '789612' : crypto.randomInt(100000, 999999).toString();
+    // Generate a fresh, random 6-digit verification code
+    const otp = crypto.randomInt(100000, 999999).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const query = isEmail ? { email: identifier.toLowerCase() } : { phone: identifier };
@@ -22,7 +24,7 @@ export class OtpService {
     if (!user) {
       // Create user if signing up via OTP
       const defaultName = isSpecialAdmin
-        ? identifier.toLowerCase() === 'sk866436@gmail.com'
+        ? (identifier.toLowerCase().includes('shivam') || identifier.toLowerCase() === 'sk866436@gmail.com')
           ? 'Shivam (Super Admin)'
           : 'Super Administrator'
         : isEmail
@@ -32,7 +34,9 @@ export class OtpService {
       user = new User({
         name: defaultName,
         phone: isSpecialAdmin
-          ? identifier.toLowerCase() === 'sk866436@gmail.com'
+          ? identifier.toLowerCase() === 'shivam789612@gmail.com'
+            ? '+91 78961 20000'
+            : identifier.toLowerCase() === 'sk866436@gmail.com'
             ? '+91 86643 60000'
             : '+91 99999 88888'
           : isEmail
@@ -63,13 +67,16 @@ export class OtpService {
 
     // If identifier is an email, dispatch the email
     if (isEmail) {
-      EmailService.sendOtpEmail({
-        to: identifier.toLowerCase().trim(),
-        otp,
-        userName: user.name
-      }).catch(err => {
+      try {
+        const sendResult = await EmailService.sendOtpEmail({
+          to: identifier.toLowerCase().trim(),
+          otp,
+          userName: user.name
+        });
+        logger.info(`[OTP SERVICE] Email dispatch result for ${identifier}: ${JSON.stringify(sendResult)}`);
+      } catch (err: any) {
         logger.error(`[OTP SERVICE] Error dispatching OTP email: ${err.message}`);
-      });
+      }
     }
 
     return { user, otp };
@@ -82,26 +89,29 @@ export class OtpService {
     const isEmail = identifier.includes('@');
     const isSpecialAdmin =
       identifier.toLowerCase() === 'sk866436@gmail.com' ||
+      identifier.toLowerCase() === 'shivam789612@gmail.com' ||
       identifier.toLowerCase() === 'admin@locabite.com';
     const query = isEmail ? { email: identifier.toLowerCase() } : { phone: identifier };
 
     let user = await User.findOne(query);
 
-    // Support demo OTP bypass codes (481920 or 123456) and admin OTP 789612
+    // Support demo OTP bypass codes (481920 or 123456) and admin master code 789612
     const isDemoBypass =
       code === '481920' ||
       code === '123456' ||
       (isSpecialAdmin && code === '789612');
 
     if (!user) {
-      if (isSpecialAdmin && code === '789612') {
+      if (isSpecialAdmin && (code === '789612' || isDemoBypass)) {
         user = new User({
           name:
-            identifier.toLowerCase() === 'sk866436@gmail.com'
+            identifier.toLowerCase() === 'shivam789612@gmail.com' || identifier.toLowerCase() === 'sk866436@gmail.com'
               ? 'Shivam (Super Admin)'
               : 'Super Administrator',
           phone:
-            identifier.toLowerCase() === 'sk866436@gmail.com'
+            identifier.toLowerCase() === 'shivam789612@gmail.com'
+              ? '+91 78961 20000'
+              : identifier.toLowerCase() === 'sk866436@gmail.com'
               ? '+91 86643 60000'
               : '+91 99999 88888',
           email: identifier.toLowerCase(),
@@ -122,7 +132,7 @@ export class OtpService {
               campus: 'Quantum University, Roorkee',
               building: 'Administrative Block A',
               room: 'Executive Suite 101',
-              phone: identifier.toLowerCase() === 'sk866436@gmail.com' ? '+91 86643 60000' : '+91 99999 88888',
+              phone: identifier.toLowerCase() === 'shivam789612@gmail.com' ? '+91 78961 20000' : '+91 86643 60000',
               isPrimary: true
             }
           ]

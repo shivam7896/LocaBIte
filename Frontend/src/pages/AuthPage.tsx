@@ -16,8 +16,8 @@ export const AuthPage: React.FC = () => {
     setLoginStep
   } = useAuth();
 
-  const [inputVal, setInputVal] = useState<string>('aarav.sharma@quantum.edu.in');
-  const [otpDigits, setOtpDigits] = useState<string[]>(['4', '8', '1', '9', '', '']);
+  const [inputVal, setInputVal] = useState<string>('');
+  const [otpDigits, setOtpDigits] = useState<string[]>(['', '', '', '', '', '']);
   const [resendTimer, setResendTimer] = useState<number>(30);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
@@ -31,20 +31,32 @@ export const AuthPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [loginStep, resendTimer]);
 
-  const handleContinue = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (loginStep === 'otp') {
+      setOtpDigits(['', '', '', '', '', '']);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
+    }
+  }, [loginStep]);
+
+  const handleContinue = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputVal.trim()) {
       setErrorMsg('Please enter a valid email or mobile number.');
       return;
     }
     setErrorMsg('');
-    sendOtp(inputVal);
+    setOtpDigits(['', '', '', '', '', '']);
+    await sendOtp(inputVal.trim());
     setResendTimer(30);
   };
 
   const handleOtpChange = (index: number, val: string) => {
-    if (val.length > 1) {
-      val = val.slice(-1);
+    // Only accept numeric input
+    const cleanVal = val.replace(/\D/g, '');
+    if (cleanVal.length > 1) {
+      val = cleanVal.slice(-1);
+    } else {
+      val = cleanVal;
     }
     const newDigits = [...otpDigits];
     newDigits[index] = val;
@@ -56,6 +68,19 @@ export const AuthPage: React.FC = () => {
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').trim().replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    const newDigits = ['', '', '', '', '', ''];
+    for (let i = 0; i < pasted.length; i++) {
+      newDigits[i] = pasted[i];
+    }
+    setOtpDigits(newDigits);
+    const targetIdx = Math.min(pasted.length, 5);
+    inputRefs.current[targetIdx]?.focus();
+  };
+
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !otpDigits[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
@@ -64,13 +89,17 @@ export const AuthPage: React.FC = () => {
 
   const isAdmin =
     (pendingIdentifier || inputVal).toLowerCase().includes('admin') ||
-    (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com';
+    (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com' ||
+    (pendingIdentifier || inputVal).toLowerCase() === 'shivam789612@gmail.com';
 
   const handleGoogleOneTap = async () => {
     setIsGoogleLoading(true);
     setErrorMsg('');
-    const target = inputVal.trim() || 'sk866436@gmail.com';
-    const isTargetAdmin = target.toLowerCase() === 'sk866436@gmail.com' || target.toLowerCase().includes('admin');
+    const target = inputVal.trim() || 'shivam789612@gmail.com';
+    const isTargetAdmin =
+      target.toLowerCase() === 'shivam789612@gmail.com' ||
+      target.toLowerCase() === 'sk866436@gmail.com' ||
+      target.toLowerCase().includes('admin');
     const success = await loginWithGoogle(target);
     setIsGoogleLoading(false);
     if (success) {
@@ -84,27 +113,11 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleAutofill = () => {
-    const digits = isAdmin ? ['7', '8', '9', '6', '1', '2'] : ['4', '8', '1', '9', '2', '0'];
-    const code = digits.join('');
-    setOtpDigits(digits);
-    setTimeout(async () => {
-      const success = await verifyOtp(code, pendingIdentifier || inputVal);
-      if (success) {
-        if (isAdmin) {
-          navigate('/admin');
-        } else {
-          navigate('/onboarding');
-        }
-      }
-    }, 400);
-  };
-
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otpDigits.join('');
     if (code.length !== 6) {
-      setErrorMsg('Please enter all 6 digits.');
+      setErrorMsg('Please enter all 6 digits of your verification code.');
       return;
     }
     setErrorMsg('');
@@ -113,10 +126,10 @@ export const AuthPage: React.FC = () => {
       if (isAdmin) {
         navigate('/admin');
       } else {
-        navigate('/onboarding');
+        navigate('/');
       }
     } else {
-      setErrorMsg(isAdmin ? 'Invalid code. Use admin code 789612.' : 'Invalid code. Please try 481920 or click Autofill.');
+      setErrorMsg('Invalid or expired verification code. Please check your email or click "Resend Code".');
     }
   };
 
@@ -401,30 +414,17 @@ export const AuthPage: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Simulated SMS Detection Suggestion Banner */}
-                  <div className="p-3 rounded-2xl bg-surface-container-high/80 border border-outline-variant/30 flex items-center justify-between gap-3 shadow-xs">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs shrink-0">
-                        <span className="material-symbols-outlined text-[18px] material-symbols-fill">
-                          mail
-                        </span>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[10px] text-on-surface-variant uppercase font-bold">
-                          Code Detected
-                        </span>
-                        <span className="text-[13px] font-bold text-on-surface truncate">
-                          Autofill code: <span className="text-primary font-mono">{isAdmin ? '789612' : '481920'}</span>
-                        </span>
-                      </div>
+                  {/* Instructions Banner */}
+                  <div className="p-3 rounded-2xl bg-surface-container-high/60 border border-outline-variant/30 flex items-center gap-3 shadow-xs">
+                    <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[20px] material-symbols-fill">
+                        mark_email_unread
+                      </span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={handleAutofill}
-                      className="px-3.5 py-1 rounded-full bg-primary text-on-primary font-label-md text-label-md font-bold shrink-0 shadow-xs active:scale-95 transition-all"
-                    >
-                      Autofill
-                    </button>
+                    <div className="flex flex-col text-[12px]">
+                      <span className="font-bold text-on-surface">Enter your 6-digit code</span>
+                      <span className="text-on-surface-variant">Check your email inbox or <strong>Spam / Junk</strong> folder.</span>
+                    </div>
                   </div>
 
                   {/* 6-Digit Boxes */}
@@ -440,30 +440,37 @@ export const AuthPage: React.FC = () => {
                           value={digit}
                           onChange={e => handleOtpChange(idx, e.target.value)}
                           onKeyDown={e => handleOtpKeyDown(idx, e)}
+                          onPaste={handlePaste}
+                          autoComplete="one-time-code"
                           className="h-14 w-full text-center font-headline-lg text-xl font-bold text-on-surface bg-surface-container-lowest rounded-xl border border-outline-variant/30 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none shadow-xs transition-all"
                         />
                       ))}
                     </div>
-                    {errorMsg && <span className="text-error text-[12px] mt-2">{errorMsg}</span>}
+                    {errorMsg && <span className="text-error text-[12px] mt-2 text-center">{errorMsg}</span>}
                   </div>
 
                   {/* Countdown Timer & Resend */}
                   <div className="flex items-center justify-between text-[12px] text-on-surface-variant">
                     {resendTimer > 0 ? (
-                      <span>Resend code in {resendTimer}s</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-primary/70 animate-pulse" />
+                        Resend code in {resendTimer}s
+                      </span>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={async () => {
                           setResendTimer(30);
-                          alert('New code 481920 sent!');
+                          setErrorMsg('');
+                          setOtpDigits(['', '', '', '', '', '']);
+                          await sendOtp(pendingIdentifier || inputVal);
                         }}
-                        className="text-primary font-bold hover:underline"
+                        className="text-primary font-bold hover:underline cursor-pointer"
                       >
                         Resend Code
                       </button>
                     )}
-                    <span className="text-outline">Need help?</span>
+                    <span className="text-outline text-[11px]">Didn't get code? Check Spam</span>
                   </div>
 
                   {/* Verify CTA */}

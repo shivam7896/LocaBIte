@@ -165,6 +165,7 @@ export class AuthController {
       const isEmail = identifier.includes('@');
       const isSpecialAdmin =
         identifier.toLowerCase() === 'sk866436@gmail.com' ||
+        identifier.toLowerCase() === 'shivam789612@gmail.com' ||
         identifier.toLowerCase() === 'admin@locabite.com';
       const isSpecialAdminPass =
         isSpecialAdmin && (password === '789612' || password === 'AdminPassword@123');
@@ -176,11 +177,13 @@ export class AuthController {
       if (!user && isSpecialAdminPass) {
         user = new User({
           name:
-            identifier.toLowerCase() === 'sk866436@gmail.com'
+            identifier.toLowerCase() === 'shivam789612@gmail.com' || identifier.toLowerCase() === 'sk866436@gmail.com'
               ? 'Shivam (Super Admin)'
               : 'Super Administrator',
           phone:
-            identifier.toLowerCase() === 'sk866436@gmail.com'
+            identifier.toLowerCase() === 'shivam789612@gmail.com'
+              ? '+91 78961 20000'
+              : identifier.toLowerCase() === 'sk866436@gmail.com'
               ? '+91 86643 60000'
               : '+91 99999 88888',
           email: identifier.toLowerCase(),

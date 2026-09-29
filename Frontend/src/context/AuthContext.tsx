@@ -80,7 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loginWithGoogle = async (email?: string): Promise<boolean> => {
     const targetEmail = (email && email.includes('@')) ? email.trim() : (pendingIdentifier.includes('@') ? pendingIdentifier : 'sk866436@gmail.com');
-    const isAdminTarget = targetEmail.toLowerCase() === 'sk866436@gmail.com' || targetEmail.toLowerCase().includes('admin');
+    const isAdminTarget =
+      targetEmail.toLowerCase() === 'sk866436@gmail.com' ||
+      targetEmail.toLowerCase() === 'shivam789612@gmail.com' ||
+      targetEmail.toLowerCase().includes('admin');
     const code = isAdminTarget ? '789612' : '481920';
 
     try {
