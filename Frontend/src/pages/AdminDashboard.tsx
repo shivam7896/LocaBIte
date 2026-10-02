@@ -2810,6 +2810,9 @@ export const AdminDashboard: React.FC = () => {
                           </span>
                         </div>
 
+                        <div className="text-[12px] text-on-surface-variant mt-1">
+                          Customer: <strong className="text-on-surface">{order.customerName || 'Guest User'}</strong>
+                        </div>
                         <div className="text-[12px] text-on-surface-variant">
                           Drop: <strong className="text-on-surface">{order.deliveryAddress?.building}, Room {order.deliveryAddress?.room}</strong> ({order.deliveryAddress?.phone})
                         </div>

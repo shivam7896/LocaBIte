@@ -1000,12 +1000,23 @@ export class AdminController {
         ];
       }
 
-      const orders = await Order.find(query).sort({ createdAt: -1 });
+      const orders = await Order.find(query).sort({ createdAt: -1 }).lean();
+
+      // Collect user IDs, filtering out invalid ones
+      const userIds = [...new Set(orders.map(o => o.userId).filter(id => id && id.length === 24))];
+      
+      const users = await User.find({ _id: { $in: userIds } }).select('name').lean();
+      const userMap = new Map(users.map(u => [u._id.toString(), u.name]));
+
+      const enrichedOrders = orders.map(o => ({
+        ...o,
+        customerName: userMap.get(o.userId) || 'Guest User'
+      }));
 
       return sendResponse({
         res,
-        data: orders,
-        meta: { total: orders.length }
+        data: enrichedOrders,
+        meta: { total: enrichedOrders.length }
       });
     } catch (err: any) {
       return sendError(res, err.message, 500);
