@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { VegBadge } from '../components/VegBadge';
 import { QuantityStepper } from '../components/QuantityStepper';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
 export const CheckoutPage: React.FC = () => {
@@ -37,6 +38,7 @@ export const CheckoutPage: React.FC = () => {
   const [couponMsg, setCouponMsg] = useState<{ text: string; isError: boolean } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('upi');
   const [isPlacingOrder, setIsPlacingOrder] = useState<boolean>(false);
+  const { isLoggedIn, loginAsDemo } = useAuth();
 
   const deliveryInstructionsList = [
     { id: 'Leave at door', label: 'Leave at door', icon: 'door_front' },
@@ -78,6 +80,11 @@ export const CheckoutPage: React.FC = () => {
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) return;
+
+    if (!isLoggedIn) {
+      navigate('/auth?redirect=/checkout');
+      return;
+    }
 
     setIsPlacingOrder(true);
 
@@ -146,7 +153,11 @@ export const CheckoutPage: React.FC = () => {
     } catch (err: any) {
       console.error('Order creation error:', err);
       setIsPlacingOrder(false);
-      alert('Could not place order. Please try again.');
+      if (err.message?.includes('Authentication') || err.message?.includes('log in') || err.message?.includes('token')) {
+        navigate('/auth?redirect=/checkout');
+      } else {
+        alert(err.message || 'Could not place order. Please try again.');
+      }
     }
   };
 
@@ -226,6 +237,50 @@ export const CheckoutPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           {/* Left Column: Address, Instructions, Items, Payment (7 Cols) */}
           <div className="lg:col-span-7 flex flex-col gap-6">
+            {/* If NOT logged in: Prominent Authentication Gate Banner */}
+            {!isLoggedIn && (
+              <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl border-2 border-primary/40 shadow-level-2 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                    <span className="material-symbols-outlined text-[26px]">lock</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-[16px] text-on-surface">
+                        Sign In Required to Order
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-[10px] font-black uppercase">
+                        Mandatory
+                      </span>
+                    </div>
+                    <p className="text-[12px] sm:text-[13px] text-on-surface-variant leading-relaxed">
+                      You must be signed in with your campus account to dispatch your delivery, track your rider live on campus map, and receive your receipt.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex sm:flex-col items-stretch sm:items-end gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/auth?redirect=/checkout')}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary hover:bg-[#d63d10] text-on-primary font-bold text-[13px] shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">login</span>
+                    <span>Sign In to Continue</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await loginAsDemo();
+                    }}
+                    className="text-[11px] font-semibold text-primary hover:underline cursor-pointer text-center sm:text-right"
+                  >
+                    Quick Student Demo Login
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Section 1: Delivery Address */}
             <div className="bg-surface-container-lowest p-5 sm:p-6 rounded-2xl shadow-level-1 border border-outline-variant/20">
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-outline-variant/20">
@@ -581,24 +636,43 @@ export const CheckoutPage: React.FC = () => {
               </div>
 
               {/* Place Order CTA Button */}
-              <button
-                disabled={isPlacingOrder}
-                onClick={handlePlaceOrder}
-                className="w-full bg-primary hover:bg-primary-container disabled:opacity-75 text-on-primary py-4 px-6 rounded-full font-label-lg text-label-lg font-bold flex items-center justify-between shadow-[0_4px_16px_rgba(174,42,0,0.3)] transition-all active:scale-[0.98] mt-2"
-              >
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="text-[10px] opacity-90 uppercase tracking-wider font-semibold">
-                    {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Pay Online'}
-                  </span>
-                  <span className="font-price-numeral text-[18px]">₹{totalToPay}</span>
-                </div>
-                <div className="flex items-center gap-1.5 font-bold">
-                  <span>{isPlacingOrder ? 'Confirming Order...' : 'Place Order'}</span>
-                  <span className="material-symbols-outlined text-[20px]">
-                    {isPlacingOrder ? 'sync' : 'arrow_forward'}
-                  </span>
-                </div>
-              </button>
+              {!isLoggedIn ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/auth?redirect=/checkout')}
+                  className="w-full bg-primary hover:bg-[#d63d10] text-on-primary py-4 px-6 rounded-full font-label-lg text-label-lg font-bold flex items-center justify-between shadow-[0_4px_16px_rgba(174,42,0,0.3)] transition-all active:scale-[0.98] mt-2 cursor-pointer"
+                >
+                  <div className="flex flex-col items-start leading-tight">
+                    <span className="text-[10px] opacity-90 uppercase tracking-wider font-semibold">
+                      Account Required
+                    </span>
+                    <span className="font-price-numeral text-[18px]">₹{totalToPay}</span>
+                  </div>
+                  <div className="flex items-center gap-2 font-bold">
+                    <span>Log In to Place Order</span>
+                    <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                  </div>
+                </button>
+              ) : (
+                <button
+                  disabled={isPlacingOrder}
+                  onClick={handlePlaceOrder}
+                  className="w-full bg-primary hover:bg-primary-container disabled:opacity-75 text-on-primary py-4 px-6 rounded-full font-label-lg text-label-lg font-bold flex items-center justify-between shadow-[0_4px_16px_rgba(174,42,0,0.3)] transition-all active:scale-[0.98] mt-2 cursor-pointer"
+                >
+                  <div className="flex flex-col items-start leading-tight">
+                    <span className="text-[10px] opacity-90 uppercase tracking-wider font-semibold">
+                      {paymentMethod === 'cod' ? 'Cash on Delivery' : 'Pay Online'}
+                    </span>
+                    <span className="font-price-numeral text-[18px]">₹{totalToPay}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <span>{isPlacingOrder ? 'Confirming Order...' : 'Place Order'}</span>
+                    <span className="material-symbols-outlined text-[20px]">
+                      {isPlacingOrder ? 'sync' : 'arrow_forward'}
+                    </span>
+                  </div>
+                </button>
+              )}
 
               <div className="flex items-center justify-center gap-2 text-center text-on-surface-variant font-body-sm text-[11px] pt-1">
                 <span className="material-symbols-outlined text-[16px] text-secondary">

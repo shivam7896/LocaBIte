@@ -17,7 +17,10 @@ export class OrderController {
    * Create New Order
    */
   static async createOrder(req: AuthenticatedRequest, res: Response): Promise<any> {
-    const userId = req.user?.userId || 'guest-session';
+    const userId = req.user?.userId;
+    if (!userId || userId === 'guest-session') {
+      return sendError(res, 'Authentication required: You must be logged in to place an order.', 401);
+    }
     const { deliveryAddress, deliveryInstructions, paymentMethod, appliedPromo, directItems } = req.body;
 
     try {
@@ -283,7 +286,10 @@ export class OrderController {
    * List Current User's Orders
    */
   static async getUserOrders(req: AuthenticatedRequest, res: Response): Promise<any> {
-    const userId = req.user?.userId || 'guest-session';
+    const userId = req.user?.userId;
+    if (!userId || userId === 'guest-session') {
+      return sendError(res, 'Authentication required: You must be logged in to view your orders.', 401);
+    }
     try {
       const orders = await Order.find({ userId }).sort({ createdAt: -1 });
 
@@ -367,7 +373,10 @@ export class OrderController {
    * Re-order items into cart
    */
   static async reorder(req: AuthenticatedRequest, res: Response): Promise<any> {
-    const userId = req.user?.userId || 'guest-session';
+    const userId = req.user?.userId;
+    if (!userId || userId === 'guest-session') {
+      return sendError(res, 'Authentication required: You must be logged in to reorder.', 401);
+    }
     const { orderId } = req.params;
 
     try {

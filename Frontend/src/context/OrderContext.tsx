@@ -115,6 +115,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     instructions: string,
     paymentMethod: string
   ): Promise<Order> => {
+    const token = localStorage.getItem('locabite_token');
+    if (!token) {
+      throw new Error('Authentication required: You must be logged in to place an order.');
+    }
+
     const res = await api.orders.create({
       deliveryAddress: address,
       deliveryInstructions: instructions,
@@ -126,6 +131,16 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (res.success && res.data?.order) {
       setActiveOrder(res.data.order);
       return res.data.order;
+    }
+
+    if (
+      !res.success &&
+      (res.message?.toLowerCase().includes('token') ||
+        res.message?.toLowerCase().includes('authentication') ||
+        res.message?.toLowerCase().includes('log in') ||
+        res.message?.toLowerCase().includes('unauthorized'))
+    ) {
+      throw new Error(res.message || 'Authentication required: You must be logged in to place an order.');
     }
 
     // Fallback if offline

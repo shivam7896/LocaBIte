@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTarget = searchParams.get('redirect') || '/';
+
   const {
     isLoggedIn,
     loginStep,
@@ -22,6 +26,18 @@ export const AuthPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [isGoogleLoading, setIsGoogleLoading] = useState<boolean>(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const dest =
+        (pendingIdentifier || inputVal).toLowerCase().includes('admin') ||
+        (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com' ||
+        (pendingIdentifier || inputVal).toLowerCase() === 'shivam789612@gmail.com'
+          ? '/admin'
+          : redirectTarget;
+      navigate(dest, { replace: true });
+    }
+  }, [isLoggedIn, navigate, redirectTarget, pendingIdentifier, inputVal]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -106,7 +122,7 @@ export const AuthPage: React.FC = () => {
       if (isTargetAdmin) {
         navigate('/admin');
       } else {
-        navigate('/');
+        navigate(redirectTarget);
       }
     } else {
       setErrorMsg('Google sign-in could not be completed. Please try with OTP.');
@@ -126,7 +142,7 @@ export const AuthPage: React.FC = () => {
       if (isAdmin) {
         navigate('/admin');
       } else {
-        navigate('/');
+        navigate(redirectTarget);
       }
     } else {
       setErrorMsg('Invalid or expired verification code. Please check your email or click "Resend Code".');
@@ -374,7 +390,10 @@ export const AuthPage: React.FC = () => {
                   <div className="mt-4 pt-4 border-t border-outline-variant/20 flex items-center justify-between">
                     <span className="text-[12px] text-on-surface-variant">Quick testing?</span>
                     <button
-                      onClick={loginAsDemo}
+                      onClick={async () => {
+                        await loginAsDemo();
+                        navigate(redirectTarget);
+                      }}
                       className="text-primary font-label-md text-label-md font-bold hover:underline"
                     >
                       Instant Demo Sign In (Aarav S.)

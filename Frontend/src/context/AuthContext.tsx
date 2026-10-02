@@ -42,17 +42,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem('locabite_token');
         }
       }
-      // Auto-login as demo student if no active session
-      try {
-        const demoRes = await api.auth.demoLogin();
-        if (demoRes.success && demoRes.data) {
-          localStorage.setItem('locabite_token', demoRes.data.accessToken);
-          setUser(demoRes.data.user);
-          setIsLoggedIn(true);
-        }
-      } catch (e) {
-        console.warn('Initial session could not be established:', e);
-      }
+      // If no valid token exists, user remains unauthenticated
+      setUser(null);
+      setIsLoggedIn(false);
     };
     initAuth();
   }, []);

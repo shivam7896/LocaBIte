@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { OrderController } from '../controllers/orderController';
-import { optionalAuth } from '../middleware/authMiddleware';
+import { optionalAuth, authenticateUser } from '../middleware/authMiddleware';
 
 const router = Router();
 
-router.post('/', optionalAuth, OrderController.createOrder);
-router.get('/my-orders', optionalAuth, OrderController.getUserOrders);
+router.post('/', authenticateUser, OrderController.createOrder);
+router.get('/my-orders', authenticateUser, OrderController.getUserOrders);
 router.get('/:orderId', optionalAuth, OrderController.getOrderById);
-router.post('/:orderId/cancel', optionalAuth, OrderController.cancelOrder);
-router.post('/:orderId/reorder', optionalAuth, OrderController.reorder);
+router.post('/:orderId/cancel', authenticateUser, OrderController.cancelOrder);
+router.post('/:orderId/reorder', authenticateUser, OrderController.reorder);
 
 export default router;

@@ -262,25 +262,36 @@ export const Navbar: React.FC = () => {
             <NotificationBell />
 
             {/* Profile Avatar / Auth Entry */}
-            <Link
-              to="/auth"
-              className="flex items-center gap-2 pl-0.5 cursor-pointer group shrink-0"
-              title={isLoggedIn ? 'Account Settings' : 'Sign In'}
-            >
-              <div className="relative shrink-0">
-                <img
-                  src={
-                    user?.avatar ||
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuDqxHXzVSlohl5ueL6SrR5W3Sff1SUuyq7sIp3xjxL-2LdsASHaAvcOBOIAdNAiyvBlKZi4jfEpWSZzKO5h8IJXJPRNa7wOsRm424lHo9rG6gbBcL4Jl6Ee0n2xztVFwnhDqhhkJ-cmARhpO_WY_ypr6IYO48oEO0FcnOkiZcY7fw1UMEwETlORb1xwr95w0mdgQcKGWEWUIPRSFQJ5zIdGZAW4eQ5tjcdG0eTEZ0O-oEB1u3cDRReg'
-                  }
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover border border-outline-variant/40 group-hover:ring-2 group-hover:ring-primary/40 transition-all"
-                />
-                <span className="absolute -bottom-0.5 -right-0.5 bg-secondary text-on-secondary rounded-full flex items-center justify-center w-3 h-3 shadow-xs">
-                  <span className="material-symbols-outlined text-[8px] font-bold">check</span>
-                </span>
-              </div>
-            </Link>
+            {isLoggedIn ? (
+              <Link
+                to="/auth"
+                className="flex items-center gap-2 pl-0.5 cursor-pointer group shrink-0"
+                title="Account Settings"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={
+                      user?.avatar ||
+                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDqxHXzVSlohl5ueL6SrR5W3Sff1SUuyq7sIp3xjxL-2LdsASHaAvcOBOIAdNAiyvBlKZi4jfEpWSZzKO5h8IJXJPRNa7wOsRm424lHo9rG6gbBcL4Jl6Ee0n2xztVFwnhDqhhkJ-cmARhpO_WY_ypr6IYO48oEO0FcnOkiZcY7fw1UMEwETlORb1xwr95w0mdgQcKGWEWUIPRSFQJ5zIdGZAW4eQ5tjcdG0eTEZ0O-oEB1u3cDRReg'
+                    }
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full object-cover border border-outline-variant/40 group-hover:ring-2 group-hover:ring-primary/40 transition-all"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 bg-secondary text-on-secondary rounded-full flex items-center justify-center w-3 h-3 shadow-xs">
+                    <span className="material-symbols-outlined text-[8px] font-bold">check</span>
+                  </span>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface hover:text-primary transition-all font-label-md text-[12px] sm:text-[13px] font-bold border border-outline-variant/30 shrink-0 shadow-2xs"
+                title="Sign In to LocaBite"
+              >
+                <span className="material-symbols-outlined text-[17px] text-primary">account_circle</span>
+                <span>Sign In</span>
+              </Link>
+            )}
           </div>
         </div>
       </header>
