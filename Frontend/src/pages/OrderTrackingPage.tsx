@@ -394,7 +394,7 @@ export const OrderTrackingPage: React.FC = () => {
               </g>
 
               {/* Live Scooter / Rider Icon Moving dynamically on Route based on GPS / Simulator */}
-              {activeOrder.driver && (
+              {activeOrder.driver && !['placed', 'confirmed', 'prepared'].includes(activeOrder.status) && (
                 <g
                   transform={`translate(${riderPos.x}, ${riderPos.y})`}
                   className="transition-all duration-700 ease-out"
@@ -412,7 +412,9 @@ export const OrderTrackingPage: React.FC = () => {
             <div className="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md border border-outline-variant/30 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-ping" />
               <span className="text-[12px] font-bold text-on-surface">
-                {activeOrder.driver?.name ? `${activeOrder.driver.name} is ${riderPos.meters} meters away` : 'Assigning Campus Rider...'}
+                {activeOrder.driver?.name && !['placed', 'confirmed', 'prepared'].includes(activeOrder.status)
+                  ? `${activeOrder.driver.name} is ${riderPos.meters} meters away`
+                  : 'Assigning Campus Rider...'}
               </span>
             </div>
 
@@ -422,7 +424,7 @@ export const OrderTrackingPage: React.FC = () => {
           </div>
 
           {/* Rider Profile Card */}
-          {activeOrder.driver && (
+          {activeOrder.driver && !['placed', 'confirmed', 'prepared'].includes(activeOrder.status) && (
             <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-level-1 border border-outline-variant/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative">
