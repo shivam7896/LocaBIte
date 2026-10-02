@@ -34,44 +34,49 @@ export const App: React.FC = () => {
     <AuthProvider>
       <CartProvider>
         <OrderProvider>
-          <Router>
-            <ScrollToTop />
-            <div className="min-h-screen flex flex-col bg-surface text-on-surface">
-              <Navbar />
+          <NotificationProvider>
+            <Router>
+              <ScrollToTop />
+              <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+                <Navbar />
 
-              {/* Main App Canvas */}
-              <div className="flex-1">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/home" element={<HomePage />} />
-                  <Route path="/restaurant/:id" element={<RestaurantPage />} />
-                  <Route path="/mart" element={<MartPage />} />
-                  <Route path="/grocery" element={<MartPage />} />
-                  <Route path="/checkout" element={<CheckoutPage />} />
-                  <Route path="/cart" element={<CheckoutPage />} />
-                  <Route path="/tracking" element={<OrderTrackingPage />} />
-                  <Route path="/auth" element={<AuthPage />} />
-                  <Route path="/login" element={<AuthPage />} />
-                  <Route path="/test-login" element={<TestLoginPage />} />
-                  <Route path="/onboarding" element={<OnboardingPage />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/*" element={<AdminDashboard />} />
-                  <Route path="/rider" element={<RiderDashboard />} />
-                  <Route path="/driver" element={<RiderDashboard />} />
-                  <Route path="*" element={<HomePage />} />
-                </Routes>
+                {/* Main App Canvas */}
+                <div className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/home" element={<HomePage />} />
+                    <Route path="/restaurant/:id" element={<RestaurantPage />} />
+                    <Route path="/mart" element={<MartPage />} />
+                    <Route path="/grocery" element={<MartPage />} />
+                    <Route path="/checkout" element={<CheckoutPage />} />
+                    <Route path="/cart" element={<CheckoutPage />} />
+                    <Route path="/tracking" element={<OrderTrackingPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/login" element={<AuthPage />} />
+                    <Route path="/test-login" element={<TestLoginPage />} />
+                    <Route path="/onboarding" element={<OnboardingPage />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/*" element={<AdminDashboard />} />
+                    <Route path="/rider" element={<RiderDashboard />} />
+                    <Route path="/driver" element={<RiderDashboard />} />
+                    <Route path="*" element={<HomePage />} />
+                  </Routes>
+                </div>
+
+                {/* Floating Bottom Cart Bar for Handheld Devices */}
+                <FloatingCartBar />
+
+                {/* Fixed Bottom Navigation for Mobile */}
+                <MobileBottomNav />
+
+                {/* Universal Footer */}
+                <Footer />
+
+                {/* Live Order Notifications & Toast System */}
+                <NotificationToastContainer />
               </div>
-
-              {/* Floating Bottom Cart Bar for Handheld Devices */}
-              <FloatingCartBar />
-
-              {/* Fixed Bottom Navigation for Mobile */}
-              <MobileBottomNav />
-
-              {/* Universal Footer */}
-              <Footer />
-            </div>
-          </Router>
+            </Router>
+          </NotificationProvider>
         </OrderProvider>
       </CartProvider>
     </AuthProvider>

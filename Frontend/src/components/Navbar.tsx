@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { LocationModal } from './LocationModal';
 import { GlobalSearchModal } from './GlobalSearchModal';
+import { NotificationBell } from './NotificationBell';
 
 export const Navbar: React.FC = () => {
   const { totalToPay, totalItemsCount, selectedAddress } = useCart();
@@ -256,6 +257,9 @@ export const Navbar: React.FC = () => {
                 {totalItemsCount} <span className="hidden xl:inline">{totalItemsCount === 1 ? 'item' : 'items'}</span>
               </span>
             </Link>
+
+            {/* Live Notification Bell with Audio Chimes & Test Simulation */}
+            <NotificationBell />
 
             {/* Profile Avatar / Auth Entry */}
             <Link

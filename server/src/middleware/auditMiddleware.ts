@@ -14,7 +14,13 @@ export const logAdminAction = (actionName: string, resourceName: string) => {
           adminEmail: req.user.email,
           action: actionName,
           resource: resourceName,
-          resourceId: req.params.id || req.body.id,
+          resourceId:
+            req.params.id ||
+            req.params.userId ||
+            req.params.orderId ||
+            req.body?.id ||
+            req.body?.userId ||
+            req.body?.orderId,
           details: {
             method: req.method,
             path: req.originalUrl,

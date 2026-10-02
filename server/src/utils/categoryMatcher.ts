@@ -127,12 +127,14 @@ export function getCategoryMatcher(category: string): any {
     };
   }
 
-  // Exact fallback
+  // Exact fallback with safe regex escaping
+  const escapedCategory = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const safeRegex = new RegExp(escapedCategory, 'i');
   return {
     $or: [
-      { category: { $regex: new RegExp(category, 'i') } },
-      { tags: { $in: [new RegExp(category, 'i')] } },
-      { name: { $regex: new RegExp(category, 'i') } }
+      { category: { $regex: safeRegex } },
+      { tags: { $in: [safeRegex] } },
+      { name: { $regex: safeRegex } }
     ]
   };
 }
