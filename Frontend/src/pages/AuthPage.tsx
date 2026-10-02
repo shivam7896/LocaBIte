@@ -11,6 +11,7 @@ export const AuthPage: React.FC = () => {
   const redirectTarget = searchParams.get('redirect') || '/';
 
   const {
+    user,
     isLoggedIn,
     loginStep,
     pendingIdentifier,
@@ -317,7 +318,7 @@ export const AuthPage: React.FC = () => {
                   {/* Google One-Tap SSO */}
                   <button
                     type="button"
-                    onClick={handleGoogleOneTap}
+                    onClick={() => handleGoogleOneTap()}
                     disabled={isGoogleLoading}
                     className="h-12 w-full px-4 rounded-xl bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center gap-3 transition-colors shadow-xs border border-outline-variant/30 font-label-md text-label-md font-bold disabled:opacity-60 cursor-pointer"
                   >
