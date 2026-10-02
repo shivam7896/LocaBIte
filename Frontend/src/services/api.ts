@@ -112,54 +112,25 @@ export const api = {
   // Auth
   auth: {
     sendOtp: async (identifier: string) => {
-      const res = await request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ identifier }) });
-      if (res.success) return res;
-      return { success: true, message: `OTP sent successfully to ${identifier}` };
+      return request('/auth/send-otp', { method: 'POST', body: JSON.stringify({ identifier }) });
     },
     verifyOtp: async (identifier: string, code: string) => {
-      const res = await request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ identifier, code }) });
-      if (res.success && res.data) return res;
-      return {
-        success: true,
-        data: {
-          user: {
-            ...FALLBACK_USER,
-            email: identifier.includes('@') ? identifier : FALLBACK_USER.email,
-            phone: !identifier.includes('@') ? identifier : FALLBACK_USER.phone
-          },
-          accessToken: 'fallback_token_' + Date.now()
-        }
-      };
+      return request('/auth/verify-otp', { method: 'POST', body: JSON.stringify({ identifier, code }) });
     },
     signup: async (data: any) => {
-      const res = await request('/auth/signup', { method: 'POST', body: JSON.stringify(data) });
-      if (res.success) return res;
-      return { success: true, data: { user: { ...FALLBACK_USER, ...data }, accessToken: 'fallback_token_' + Date.now() } };
+      return request('/auth/signup', { method: 'POST', body: JSON.stringify(data) });
     },
     login: async (identifier: string, password: string) => {
-      const res = await request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
-      if (res.success) return res;
-      return { success: true, data: { user: FALLBACK_USER, accessToken: 'fallback_token_' + Date.now() } };
+      return request('/auth/login', { method: 'POST', body: JSON.stringify({ identifier, password }) });
     },
     googleLogin: async (token: string) => {
-      const res = await request('/auth/google-login', { method: 'POST', body: JSON.stringify({ token }) });
-      return res;
+      return request('/auth/google-login', { method: 'POST', body: JSON.stringify({ token }) });
     },
     demoLogin: async () => {
-      const res = await request('/auth/demo-login', { method: 'POST' });
-      if (res.success && res.data) return res;
-      return {
-        success: true,
-        data: {
-          user: FALLBACK_USER,
-          accessToken: 'fallback_demo_token_2026'
-        }
-      };
+      return request('/auth/demo-login', { method: 'POST' });
     },
     getProfile: async () => {
-      const res = await request('/auth/profile');
-      if (res.success && res.data) return res;
-      return { success: true, data: FALLBACK_USER };
+      return request('/auth/profile');
     },
     updateProfile: (data: any) =>
       request('/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
