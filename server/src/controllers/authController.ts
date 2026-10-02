@@ -728,6 +728,17 @@ export class AuthController {
           addresses: []
         });
         await user.save();
+      } else {
+        // Update existing user with Google name/avatar if not present or fallback
+        if (payload.name && (!user.name || user.name === 'Customer' || user.name.includes('@'))) {
+          user.name = payload.name;
+        } else if (payload.name) {
+           user.name = payload.name; // Always sync Google name to keep it updated
+        }
+        if (payload.picture) {
+          user.avatar = payload.picture;
+        }
+        await user.save();
       }
 
       const tokenPayload = {

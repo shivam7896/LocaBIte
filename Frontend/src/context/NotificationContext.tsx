@@ -223,6 +223,10 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const socket = getSocket();
 
     const handleNotification = (notif: WebsiteNotification) => {
+      // Filter out notifications not meant for this user's role
+      if (notif.role && notif.role !== 'all' && notif.role !== user?.role) {
+        return;
+      }
       dispatchNotification(notif);
     };
 
@@ -230,9 +234,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     socket.on('order_notification', handleNotification);
 
     // Role-specific channels
-    socket.on('customer_order_notification', handleNotification);
-    socket.on('admin_new_order_notification', handleNotification);
-    socket.on('rider_dispatch_notification', handleNotification);
+    if (user?.role === 'customer') {
+      socket.on('customer_order_notification', handleNotification);
+    } else if (user?.role === 'admin') {
+      socket.on('admin_new_order_notification', handleNotification);
+    } else if (user?.role === 'rider') {
+      socket.on('rider_dispatch_notification', handleNotification);
+    }
 
     return () => {
       socket.off('order_notification', handleNotification);
@@ -240,7 +248,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       socket.off('admin_new_order_notification', handleNotification);
       socket.off('rider_dispatch_notification', handleNotification);
     };
-  }, [dispatchNotification]);
+  }, [dispatchNotification, user?.role]);
 
   const markAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
