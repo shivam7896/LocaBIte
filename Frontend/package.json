@@ -4,14 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n \"frontend,backend\" -c \"cyan,magenta\" \"vite\" \"npm --prefix server run dev\"",
+    "dev": "concurrently -n \"frontend,backend\" -c \"cyan,magenta\" \"vite\" \"npm --prefix ../server run dev\"",
     "client": "vite",
-    "server": "npm --prefix server run dev",
-    "server:seed": "npm --prefix server run seed",
+    "server": "npm --prefix ../server run dev",
+    "server:seed": "npm --prefix ../server run seed",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "canvas-confetti": "^1.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -70,37 +70,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
 
-  const loginWithGoogle = async (email?: string): Promise<boolean> => {
-    const targetEmail = (email && email.includes('@')) ? email.trim() : (pendingIdentifier.includes('@') ? pendingIdentifier : 'sk866436@gmail.com');
-    const isAdminTarget =
-      targetEmail.toLowerCase() === 'sk866436@gmail.com' ||
-      targetEmail.toLowerCase() === 'shivam789612@gmail.com' ||
-      targetEmail.toLowerCase().includes('admin');
-    const code = isAdminTarget ? '789612' : '481920';
-
+  const loginWithGoogle = async (token: string): Promise<boolean> => {
     try {
-      await api.auth.sendOtp(targetEmail);
-    } catch {}
-
-    const success = await verifyOtp(code, targetEmail);
-    if (success) {
-      return true;
-    }
-
-    try {
-      const demoRes = await api.auth.demoLogin();
-      if (demoRes.success && demoRes.data?.user) {
-        if (demoRes.data.accessToken) {
-          localStorage.setItem('locabite_token', demoRes.data.accessToken);
+      const res = await api.auth.googleLogin(token);
+      if (res.success && res.data?.user) {
+        if (res.data.accessToken) {
+          localStorage.setItem('locabite_token', res.data.accessToken);
         }
-        setUser(demoRes.data.user);
+        setUser(res.data.user);
         setIsLoggedIn(true);
-        setLoginStep('done');
+        setLoginStep('onboarding');
         return true;
       }
-    } catch {}
-
-    return false;
+      return false;
+    } catch {
+      return false;
+    }
   };
 
   const savePreferences = async (dietary: DietaryType[], orderStyle: ('food' | 'mart')[]) => {

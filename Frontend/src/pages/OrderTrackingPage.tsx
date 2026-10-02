@@ -222,7 +222,7 @@ export const OrderTrackingPage: React.FC = () => {
                 </span>
               </h1>
               <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
-                Rider {activeOrder.driver?.name || 'Vikram'} has picked up your meal & supplies and is steering towards your hostel gate.
+                {activeOrder.driver?.name ? `Rider ${activeOrder.driver.name} has picked up your meal & supplies and is steering towards your hostel gate.` : 'We are preparing your meal & supplies. A rider will be assigned soon.'}
               </p>
             </div>
 
@@ -394,23 +394,25 @@ export const OrderTrackingPage: React.FC = () => {
               </g>
 
               {/* Live Scooter / Rider Icon Moving dynamically on Route based on GPS / Simulator */}
-              <g
-                transform={`translate(${riderPos.x}, ${riderPos.y})`}
-                className="transition-all duration-700 ease-out"
-              >
-                <circle r="22" fill="#F04F23" opacity="0.3" className="animate-ping" />
-                <circle r="18" fill="#F04F23" filter="drop-shadow(0px 4px 8px rgba(0,0,0,0.25))" />
-                <text x="-9" y="6" fill="#ffffff" fontSize="18" fontFamily="'Material Symbols Outlined'">
-                  two_wheeler
-                </text>
-              </g>
+              {activeOrder.driver && (
+                <g
+                  transform={`translate(${riderPos.x}, ${riderPos.y})`}
+                  className="transition-all duration-700 ease-out"
+                >
+                  <circle r="22" fill="#F04F23" opacity="0.3" className="animate-ping" />
+                  <circle r="18" fill="#F04F23" filter="drop-shadow(0px 4px 8px rgba(0,0,0,0.25))" />
+                  <text x="-9" y="6" fill="#ffffff" fontSize="18" fontFamily="'Material Symbols Outlined'">
+                    two_wheeler
+                  </text>
+                </g>
+              )}
             </svg>
 
             {/* Overlaid Live Status Pill */}
             <div className="absolute top-4 left-4 bg-surface-container-lowest/90 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md border border-outline-variant/30 flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-secondary animate-ping" />
               <span className="text-[12px] font-bold text-on-surface">
-                {activeOrder.driver?.name || 'Rider'} is {riderPos.meters} meters away
+                {activeOrder.driver?.name ? `${activeOrder.driver.name} is ${riderPos.meters} meters away` : 'Assigning Campus Rider...'}
               </span>
             </div>
 

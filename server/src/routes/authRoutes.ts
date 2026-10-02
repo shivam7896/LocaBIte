@@ -25,6 +25,7 @@ router.post('/verify-otp', authRateLimiter, validateRequest(verifyOtpSchema), Au
 router.post('/signup', authRateLimiter, validateRequest(signupSchema), AuthController.signup);
 router.post('/register', authRateLimiter, validateRequest(signupSchema), AuthController.signup);
 router.post('/login', authRateLimiter, validateRequest(loginSchema), AuthController.login);
+router.post('/google-login', AuthController.googleLogin);
 router.post('/demo-login', AuthController.loginAsDemo);
 router.post('/refresh', AuthController.refreshToken);
 

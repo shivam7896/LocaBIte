@@ -162,16 +162,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       deliveryAddress: address,
       deliveryInstructions: instructions,
       otpOnArrival: Math.floor(1000 + Math.random() * 9000).toString(),
-      paymentMethod,
-      driver: {
-        name: 'Vikram Singh',
-        phone: '+91 98123 45678',
-        vehicleNumber: 'UK-08-EV-4421',
-        vehicleType: 'Zero Carbon Electric Moped',
-        rating: 4.9,
-        deliveriesCount: 1240,
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDqxHXzVSlohl5ueL6SrR5W3Sff1SUuyq7sIp3xjxL-2LdsASHaAvcOBOIAdNAiyvBlKZi4jfEpWSZzKO5h8IJXJPRNa7wOsRm424lHo9rG6gbBcL4Jl6Ee0n2xztVFwnhDqhhkJ-cmARhpO_WY_ypr6IYO48oEO0FcnOkiZcY7fw1UMEwETlORb1xwr95w0mdgQcKGWEWUIPRSFQJ5zIdGZAW4eQ5tjcdG0eTEZ0O-oEB1u3cDRReg'
-      }
+      paymentMethod
     };
 
     setActiveOrder(newOrder);

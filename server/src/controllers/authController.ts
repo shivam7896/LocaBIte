@@ -691,4 +691,72 @@ export class AuthController {
       return sendError(res, 'Authentication failed', 500);
     }
   }
+
+  /**
+   * Google OAuth Login
+   */
+  static async googleLogin(req: AuthenticatedRequest, res: Response): Promise<any> {
+    const { token } = req.body;
+    if (!token) return sendError(res, 'Token is required', 400);
+
+    try {
+      const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const payload = await googleRes.json();
+      
+      if (!payload || !payload.email) {
+        return sendError(res, 'Invalid Google token', 401);
+      }
+
+      const email = payload.email.toLowerCase();
+      let user = await User.findOne({ email });
+
+      if (!user) {
+        user = new User({
+          name: payload.name || 'Google User',
+          email: email,
+          role: 'customer',
+          avatar: payload.picture,
+          membershipLevel: 'Gold Member',
+          loyaltyCoins: 100,
+          preferences: {
+            dietary: ['non-veg'],
+            categories: ['Burgers', 'North Indian', 'Groceries'],
+            orderStyle: ['food', 'mart']
+          },
+          addresses: []
+        });
+        await user.save();
+      }
+
+      const tokenPayload = {
+        userId: user._id.toString(),
+        role: user.role,
+        email: user.email,
+        phone: user.phone
+      };
+
+      const accessToken = signAccessToken(tokenPayload);
+      const refreshToken = signRefreshToken(tokenPayload);
+
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      return sendResponse({
+        res,
+        message: 'Google Login successful',
+        data: {
+          user,
+          accessToken,
+          refreshToken
+        }
+      });
+
+    } catch (err: any) {
+      logger.error(`[GOOGLE AUTH] Error: ${err.message}`);
+      return sendError(res, 'Google Authentication failed', 500);
+    }
+  }
 }
+

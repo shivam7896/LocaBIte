@@ -133,8 +133,10 @@ export const CheckoutPage: React.FC = () => {
                 },
                 theme: { color: '#ae2a00' },
                 modal: {
-                  ondismiss: () => {
-                    finalizeOrder(targetId);
+                  ondismiss: async () => {
+                    setIsPlacingOrder(false);
+                    await api.orders.cancel(targetId, 'Payment cancelled by user');
+                    alert('Payment was cancelled. You can try placing the order again.');
                   }
                 }
               };
@@ -298,7 +300,7 @@ export const CheckoutPage: React.FC = () => {
               </div>
 
               {/* Selected Address Card */}
-              <div className="bg-surface-container-low p-4 rounded-xl relative overflow-hidden border border-secondary/20">
+              <div className="bg-surface-container-low p-4 rounded-xl relative overflow-hidden border border-secondary/20 flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <span className="material-symbols-outlined text-secondary text-[24px] mt-0.5">
                     home_pin
@@ -321,6 +323,14 @@ export const CheckoutPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/onboarding')}
+                  className="shrink-0 text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg text-[13px] font-bold transition-colors flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-[16px]">edit</span>
+                  <span className="hidden sm:inline">Edit</span>
+                </button>
               </div>
 
               {/* Rider Delivery Instructions */}

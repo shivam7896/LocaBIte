@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,12 +33,13 @@ export const AuthPage: React.FC = () => {
       const dest =
         (pendingIdentifier || inputVal).toLowerCase().includes('admin') ||
         (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com' ||
-        (pendingIdentifier || inputVal).toLowerCase() === 'shivam789612@gmail.com'
+        (pendingIdentifier || inputVal).toLowerCase() === 'shivam789612@gmail.com' ||
+        user?.role === 'admin'
           ? '/admin'
           : redirectTarget;
       navigate(dest, { replace: true });
     }
-  }, [isLoggedIn, navigate, redirectTarget, pendingIdentifier, inputVal]);
+  }, [isLoggedIn, navigate, redirectTarget, pendingIdentifier, inputVal, user]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -108,26 +110,27 @@ export const AuthPage: React.FC = () => {
     (pendingIdentifier || inputVal).toLowerCase() === 'sk866436@gmail.com' ||
     (pendingIdentifier || inputVal).toLowerCase() === 'shivam789612@gmail.com';
 
-  const handleGoogleOneTap = async () => {
-    setIsGoogleLoading(true);
-    setErrorMsg('');
-    const target = inputVal.trim() || 'shivam789612@gmail.com';
-    const isTargetAdmin =
-      target.toLowerCase() === 'shivam789612@gmail.com' ||
-      target.toLowerCase() === 'sk866436@gmail.com' ||
-      target.toLowerCase().includes('admin');
-    const success = await loginWithGoogle(target);
-    setIsGoogleLoading(false);
-    if (success) {
-      if (isTargetAdmin) {
-        navigate('/admin');
-      } else {
-        navigate(redirectTarget);
+  const handleGoogleOneTap = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsGoogleLoading(true);
+      setErrorMsg('');
+      
+      // google-auth-library on backend verifyIdToken expects an ID token.
+      // useGoogleLogin provides an access_token by default, but we need to configure flow: 'implicit' 
+      // or we just pass the access_token. Wait, we should probably just use the access token or fetch the user info in the frontend. 
+      // Let's use the token to hit Google's userinfo endpoint or just pass the access token to our backend 
+      // and backend uses oauth2client.getTokenInfo() or similar. 
+      // Actually, if we use flow: 'implicit' (default), we get an access_token. Let's pass it.
+      const success = await loginWithGoogle(tokenResponse.access_token);
+      setIsGoogleLoading(false);
+      if (!success) {
+        setErrorMsg('Google sign-in could not be completed. Please try with OTP.');
       }
-    } else {
-      setErrorMsg('Google sign-in could not be completed. Please try with OTP.');
+    },
+    onError: () => {
+      setErrorMsg('Google sign-in failed.');
     }
-  };
+  });
 
   const handleVerifySubmit = async (e: React.FormEvent) => {
     e.preventDefault();

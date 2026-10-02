@@ -90,12 +90,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Compute item total
   const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // Delivery fee logic: Free if >= 199 or CAMPUSFREE applied
-  const isFreeDelivery = itemTotal >= 199 || appliedPromo === 'CAMPUSFREE';
-  const deliveryFee = items.length === 0 ? 0 : isFreeDelivery ? 0 : 20;
+  // Delivery fee logic: Free delivery as requested
+  const deliveryFee = 0;
 
-  // Campus Handling & Taxes: Fixed ₹21 like in Stitch design, or 0 if empty
-  const taxesAndHandling = items.length === 0 ? 0 : 21;
+  // Campus Handling & Taxes: 0 as requested
+  const taxesAndHandling = 0;
 
   // Discount calculation from real active coupons in DB
   let discount = 0;
