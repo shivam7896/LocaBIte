@@ -11,6 +11,7 @@ interface AuthContextType {
   verifyOtp: (code: string, identifierOverride?: string) => Promise<boolean>;
   loginWithGoogle: (email?: string) => Promise<boolean>;
   savePreferences: (dietary: DietaryType[], orderStyle: ('food' | 'mart')[]) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   logout: () => void;
   loginAsDemo: () => Promise<void>;
   loginWithToken: (token: string, userData: any) => void;
@@ -103,6 +104,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoginStep('done');
   };
 
+  const refreshProfile = async () => {
+    try {
+      const res = await api.auth.getProfile();
+      if (res.success && res.data) {
+        setUser(res.data);
+      }
+    } catch (e) {
+      console.warn('Failed to refresh profile', e);
+    }
+  };
+
   const logout = () => {
     api.auth.logout();
     localStorage.removeItem('locabite_token');
@@ -139,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         verifyOtp,
         loginWithGoogle,
         savePreferences,
+        refreshProfile,
         logout,
         loginAsDemo,
         loginWithToken,

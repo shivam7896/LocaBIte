@@ -4,13 +4,13 @@ import { api } from '../services/api';
 
 const defaultAddress: Address = {
   id: 'addr-default',
-  title: 'Boys Hostel Block C',
-  type: 'hostel',
-  campus: 'Quantum University, Roorkee',
-  building: 'Block C, Room 204',
-  room: 'Room 204',
-  landmark: 'Near Quadrangle Lawn',
-  phone: '+91 98765 43210',
+  title: 'Choose delivery location',
+  type: 'apartment',
+  campus: '',
+  building: 'No location selected',
+  room: '',
+  landmark: '',
+  phone: '',
   isPrimary: true
 };
 

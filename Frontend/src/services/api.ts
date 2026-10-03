@@ -45,30 +45,8 @@ const FALLBACK_USER = {
   role: 'customer',
   membershipLevel: 'Gold Member',
   loyaltyCoins: 420,
-  selectedAddress: {
-    id: 'addr-default',
-    title: 'Boys Hostel Block C',
-    type: 'hostel' as const,
-    campus: 'Quantum University, Roorkee',
-    building: 'Block C, Room 204',
-    room: 'Room 204',
-    landmark: 'Near Quadrangle Lawn',
-    phone: '+91 98765 43210',
-    isPrimary: true
-  },
-  addresses: [
-    {
-      id: 'addr-default',
-      title: 'Boys Hostel Block C',
-      type: 'hostel' as const,
-      campus: 'Quantum University, Roorkee',
-      building: 'Block C, Room 204',
-      room: 'Room 204',
-      landmark: 'Near Quadrangle Lawn',
-      phone: '+91 98765 43210',
-      isPrimary: true
-    }
-  ],
+  selectedAddress: null,
+  addresses: [],
   preferences: {
     dietary: ['veg' as const],
     categories: ['Burgers', 'North Indian', 'Groceries'],
@@ -139,7 +117,7 @@ export const api = {
     getAddresses: async () => {
       const res = await request('/auth/addresses');
       if (res.success && res.data) return res;
-      return { success: true, data: FALLBACK_USER.addresses };
+      return { success: true, data: [] };
     },
     addAddress: (address: any) =>
       request('/auth/addresses', { method: 'POST', body: JSON.stringify(address) }),

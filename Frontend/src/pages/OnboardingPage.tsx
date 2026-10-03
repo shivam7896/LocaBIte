@@ -134,7 +134,7 @@ export const OnboardingPage: React.FC = () => {
             Personalize your <span className="text-primary">LocaBite</span>
           </h1>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            Tell us your preferences so we can tailor restaurants, grocery alerts, and campus discounts.
+            Tell us your preferences so we can tailor restaurants, grocery alerts, and local discounts.
           </p>
         </div>
 
@@ -179,7 +179,7 @@ export const OnboardingPage: React.FC = () => {
                       )}
                     </div>
                     <p className="font-body-sm text-[12px] text-on-surface-variant mt-1 leading-snug">
-                      Hot campus meals, late-night cravings & library snacks.
+                      Hot restaurant meals, late-night cravings & snacks.
                     </p>
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export const OnboardingPage: React.FC = () => {
                   <span className="inline-flex items-center gap-1 rounded-full bg-secondary-container/60 px-2 py-0.5 text-[10px] font-bold text-on-secondary-container">
                     ⚡ 10-15 Min Guarantee
                   </span>
-                  <span className="text-[11px] text-on-surface-variant">Hostel gate drops</span>
+                  <span className="text-[11px] text-on-surface-variant">Home delivery</span>
                 </div>
               </div>
             </div>
@@ -270,7 +270,7 @@ export const OnboardingPage: React.FC = () => {
           {/* Section 3: Campus Hostel Hub */}
           <section className="flex flex-col gap-3">
             <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-              Primary Campus Hostel Drop Location
+              Primary Delivery Location
             </h2>
 
             <div className="flex flex-col gap-2">

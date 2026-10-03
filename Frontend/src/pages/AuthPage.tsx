@@ -169,11 +169,11 @@ export const AuthPage: React.FC = () => {
                   <span className="material-symbols-outlined text-[15px] text-primary material-symbols-fill">
                     bolt
                   </span>
-                  Hyper-Speed Campus Dispatch
+                  Hyper-Speed City Dispatch
                 </span>
                 <span className="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1">
                   <span className="inline-block w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                  Live in 18+ Campuses
+                  Live in 18+ Cities
                 </span>
               </div>
 
@@ -185,7 +185,7 @@ export const AuthPage: React.FC = () => {
                   </span>
                 </h1>
                 <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg mt-1">
-                  LocaBite synchronizes cloud kitchens, student hubs, and 24/7 dark stores for frictionless delivery directly to your dorm door.
+                  LocaBite synchronizes cloud kitchens, local hubs, and 24/7 dark stores for frictionless delivery directly to your door.
                 </p>
               </div>
 
@@ -199,10 +199,10 @@ export const AuthPage: React.FC = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="font-headline-sm text-[14px] font-bold text-on-surface">
-                      10–15 Min Campus Delivery
+                      10–15 Min Fast Delivery
                     </span>
                     <span className="font-body-sm text-[12px] text-on-surface-variant">
-                      Bypasses gate queues straight to designated quad hubs
+                      Lightning fast delivery straight to your doorstep
                     </span>
                   </div>
                 </div>
@@ -239,7 +239,7 @@ export const AuthPage: React.FC = () => {
                       Hyper-Local Discovery
                     </span>
                     <span className="font-body-sm text-[12px] text-on-surface-variant">
-                      Curated across 120+ top campus eateries & 24/7 grocery marts
+                      Curated across 120+ top local eateries & 24/7 grocery marts
                     </span>
                   </div>
                 </div>
@@ -262,10 +262,10 @@ export const AuthPage: React.FC = () => {
                     </span>
                   </div>
                   <p className="font-body-md text-[13px] text-on-surface italic">
-                    “LocaBite has completely changed hostel life — hot meals arrive before our lectures end!”
+                    “LocaBite has completely changed my daily routine — hot meals arrive right when I need them!”
                   </p>
                   <span className="font-label-md text-[12px] text-on-surface-variant font-bold mt-1">
-                    Aarav Sharma <span className="font-normal text-outline">• Quantum University</span>
+                    Aarav Sharma <span className="font-normal text-outline">• Verified Customer</span>
                   </span>
                 </div>
               </div>
@@ -289,7 +289,7 @@ export const AuthPage: React.FC = () => {
                       </span>
                     </div>
                     <p className="font-body-md text-on-surface-variant text-[13px]">
-                      Access campus food, late-night snacks, and 10-min mart orders in one tap.
+                      Access local food, late-night snacks, and 10-min mart orders in one tap.
                     </p>
                   </div>
 
@@ -310,7 +310,7 @@ export const AuthPage: React.FC = () => {
                         </span>
                       </div>
                       <p className="font-body-sm text-[11px] text-on-surface-variant truncate">
-                        Code auto-applied upon logging in with student email
+                        Code auto-applied upon your first login
                       </p>
                     </div>
                   </div>
@@ -358,7 +358,7 @@ export const AuthPage: React.FC = () => {
                         <label className="font-label-md text-label-md text-on-surface font-bold">
                           Email or Mobile Number
                         </label>
-                        <span className="text-[11px] text-outline">Campus or Personal</span>
+                        <span className="text-[11px] text-outline">Personal or Work</span>
                       </div>
 
                       <div className="relative flex items-center">
@@ -369,7 +369,7 @@ export const AuthPage: React.FC = () => {
                           type="text"
                           value={inputVal}
                           onChange={e => setInputVal(e.target.value)}
-                          placeholder="name@campus.edu or +91"
+                          placeholder="name@example.com or +91"
                           required
                           className="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-low text-on-surface font-body-lg text-body-lg focus:bg-surface-container-lowest focus:outline-none focus:ring-2 focus:ring-primary border border-outline-variant/30 shadow-inner transition-all placeholder:text-outline/70"
                         />

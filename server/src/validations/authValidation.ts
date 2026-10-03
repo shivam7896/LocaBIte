@@ -46,11 +46,11 @@ export const updatePreferencesSchema = z.object({
 
 export const addressSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  type: z.enum(['hostel', 'department', 'home', 'other']).default('hostel'),
-  campus: z.string().default('Quantum University, Roorkee'),
-  building: z.string().min(1, 'Building/Hostel is required'),
-  room: z.string().min(1, 'Room number is required'),
+  type: z.enum(['hostel', 'department', 'home', 'apartment', 'other', 'office']).default('home'),
+  campus: z.string().optional(),
+  building: z.string().min(1, 'Building/Address is required'),
+  room: z.string().optional(),
   landmark: z.string().optional(),
-  phone: z.string().min(10, 'Contact phone is required'),
+  phone: z.string().optional(),
   isPrimary: z.boolean().default(false)
 });

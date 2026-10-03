@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Address } from '../types';
 import { api } from '../services/api';
+import { MapPicker } from './MapPicker';
 
 interface LocationModalProps {
   isOpen: boolean;
@@ -11,8 +12,9 @@ interface LocationModalProps {
 
 export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose }) => {
   const { selectedAddress, setSelectedAddress } = useCart();
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>(user?.addresses || (selectedAddress ? [selectedAddress] : []));
+  const [view, setView] = useState<'list' | 'map'>('list');
 
   useEffect(() => {
     if (isOpen) {
@@ -42,10 +44,42 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
     onClose();
   };
 
+  const handleLocationSelected = async (addressDetails: { title: string; fullAddress: string; lat: number; lng: number }) => {
+    const newAddress: Address = {
+      id: 'addr-' + Date.now(),
+      title: addressDetails.title,
+      type: 'apartment', // Default type for general addresses
+      campus: addressDetails.title,
+      building: addressDetails.fullAddress,
+      room: '',
+      landmark: '',
+      phone: '',
+      isPrimary: false
+    };
+
+    try {
+      await api.auth.addAddress(newAddress);
+      if (user) {
+        await refreshProfile();
+      }
+    } catch (e) {
+      console.warn('Set default address error:', e);
+    }
+
+    setAddresses([...addresses, newAddress]);
+    handleSelect(newAddress);
+    setView('list');
+  };
+
+  const handleModalClose = () => {
+    setView('list');
+    onClose();
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/60 backdrop-blur-md transition-opacity"
-      onClick={onClose}
+      onClick={handleModalClose}
     >
       <div
         className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-level-3 p-6 flex flex-col gap-4 border border-outline-variant/30 animate-in fade-in zoom-in-95"
@@ -56,22 +90,29 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
             <span className="material-symbols-outlined text-primary text-[24px]">near_me</span>
             <div>
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                Select Campus Drop Hub
+                {view === 'map' ? 'Choose on Map' : 'Select Delivery Location'}
               </h3>
               <p className="text-[12px] text-on-surface-variant">
-                Direct to hostel gates & departmental study blocks
+                {view === 'map' ? 'Tap anywhere on the map to set location' : 'Direct to your home or office'}
               </p>
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleModalClose}
             className="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant"
           >
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
-        <div className="flex flex-col gap-2.5 max-h-72 overflow-y-auto pr-1">
+        {view === 'map' ? (
+          <MapPicker 
+            onLocationSelected={handleLocationSelected} 
+            onCancel={() => setView('list')} 
+          />
+        ) : (
+          <>
+            <div className="flex flex-col gap-2.5 max-h-72 overflow-y-auto pr-1">
           {addresses.map(addr => {
             const isSelected = selectedAddress.id === addr.id;
             return (
@@ -114,17 +155,19 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
           })}
         </div>
 
-        <div className="pt-2 border-t border-outline-variant/20 flex items-center justify-between">
-          <span className="text-[11px] text-on-surface-variant">
-            Need drop at another campus?
-          </span>
-          <button
-            onClick={onClose}
-            className="text-primary font-label-md text-label-md font-bold hover:underline"
-          >
-            + Add New Location
-          </button>
-        </div>
+            <div className="pt-2 border-t border-outline-variant/20 flex items-center justify-between">
+              <span className="text-[11px] text-on-surface-variant">
+                Need drop at another location?
+              </span>
+              <button
+                onClick={() => setView('map')}
+                className="text-primary font-label-md text-label-md font-bold hover:underline"
+              >
+                + Add New Location
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

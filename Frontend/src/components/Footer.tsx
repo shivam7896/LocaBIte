@@ -13,12 +13,12 @@ export const Footer: React.FC = () => {
               <Logo size="lg" />
             </Link>
             <p className="font-body-md text-on-surface-variant max-w-sm">
-              Hyper-speed campus food delivery and 10-minute grocery essentials. Connecting university hostels and departments with beloved local kitchens.
+              Hyper-speed local food delivery and 10-minute grocery essentials. Connecting your home and office with beloved local kitchens.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-on-secondary-container text-[12px] font-bold">
                 <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                Live in 18+ University Campuses
+                Live in 18+ Cities
               </span>
             </div>
           </div>
@@ -48,14 +48,14 @@ export const Footer: React.FC = () => {
 
           {/* Campus Services */}
           <div className="flex flex-col gap-3">
-            <h4 className="font-label-lg text-label-lg font-bold text-on-surface">Campus Services</h4>
+            <h4 className="font-label-lg text-label-lg font-bold text-on-surface">Local Services</h4>
             <div className="flex flex-col gap-2 font-body-sm text-[13px] text-on-surface-variant">
               <Link to="/tracking" className="hover:text-primary transition-colors">
                 Live Order Tracking
               </Link>
-              <span className="cursor-pointer hover:text-primary transition-colors">Hostel Gate Express Drops</span>
-              <span className="cursor-pointer hover:text-primary transition-colors">Campus Study Night Snacks</span>
-              <span className="cursor-pointer hover:text-primary transition-colors">Student Loyalty Coins</span>
+              <span className="cursor-pointer hover:text-primary transition-colors">Home & Office Express Drops</span>
+              <span className="cursor-pointer hover:text-primary transition-colors">Late Night Delivery</span>
+              <span className="cursor-pointer hover:text-primary transition-colors">Customer Loyalty Coins</span>
               <span className="cursor-pointer hover:text-primary transition-colors">Partner With Us (Outlets)</span>
             </div>
           </div>
@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Strip */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 font-body-sm text-[12px] text-on-surface-variant">
-          <p>© 2026 LocaBite Technologies Inc. Built with love for campus students.</p>
+          <p>© 2026 LocaBite Technologies Inc. Built with love for local communities.</p>
           <div className="flex items-center gap-4">
             <span className="hover:underline cursor-pointer">Privacy Policy</span>
             <span>•</span>

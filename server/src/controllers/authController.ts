@@ -258,38 +258,8 @@ export class AuthController {
           role: 'customer',
           membershipLevel: 'Gold Member',
           loyaltyCoins: 420,
-          selectedAddress: {
-            title: 'Boys Hostel Block C',
-            type: 'hostel',
-            campus: 'Quantum University, Roorkee',
-            building: 'Block C, Room 204',
-            room: 'Room 204',
-            landmark: 'Near Quadrangle Lawn',
-            phone: '+91 98765 43210',
-            isPrimary: true
-          },
-          addresses: [
-            {
-              title: 'Boys Hostel Block C',
-              type: 'hostel',
-              campus: 'Quantum University, Roorkee',
-              building: 'Block C, Room 204',
-              room: 'Room 204',
-              landmark: 'Near Quadrangle Lawn',
-              phone: '+91 98765 43210',
-              isPrimary: true
-            },
-            {
-              title: 'Central Library Ground Floor',
-              type: 'department',
-              campus: 'Quantum University, Roorkee',
-              building: 'Academic Block A',
-              room: 'Study Desk 14',
-              landmark: 'Library Reception Desk',
-              phone: '+91 98765 43210',
-              isPrimary: false
-            }
-          ],
+          selectedAddress: null,
+          addresses: [],
           preferences: {
             dietary: ['non-veg'],
             categories: ['Burgers', 'North Indian', 'Groceries'],
@@ -617,7 +587,7 @@ export class AuthController {
           name: 'Razorpay Reviewer',
           phone: '+91 98888 77777',
           email: expectedEmail,
-          role: 'customer', // MUST strictly be customer (NO admin privileges)
+          role: 'customer',
           isTestAccount: true,
           membershipLevel: 'Silver Member',
           loyaltyCoins: 500,
@@ -626,39 +596,12 @@ export class AuthController {
             categories: ['Burgers', 'North Indian', 'Groceries'],
             orderStyle: ['food', 'mart']
           },
-          addresses: [
-            {
-              id: 'addr-rzp-test-1',
-              title: 'Review Office / Campus Lab',
-              type: 'department',
-              campus: 'Quantum University, Roorkee',
-              building: 'Evaluation Wing',
-              room: 'Test Suite 101',
-              landmark: 'Near Central Library',
-              phone: '+91 98888 77777',
-              isPrimary: true
-            }
-          ]
+          addresses: []
         });
       } else {
-        // Enforce customer role and test account flag
         testUser.role = 'customer';
         testUser.isTestAccount = true;
-        if (!testUser.addresses || testUser.addresses.length === 0) {
-          testUser.addresses = [
-            {
-              id: 'addr-rzp-test-1',
-              title: 'Review Office / Campus Lab',
-              type: 'department',
-              campus: 'Quantum University, Roorkee',
-              building: 'Evaluation Wing',
-              room: 'Test Suite 101',
-              landmark: 'Near Central Library',
-              phone: '+91 98888 77777',
-              isPrimary: true
-            }
-          ];
-        }
+        testUser.addresses = [];
       }
 
       // 4. Issue standard authenticated customer JWT session
@@ -716,6 +659,7 @@ export class AuthController {
         user = new User({
           name: payload.name || 'Google User',
           email: email,
+          phone: `G-${Date.now()}-${Math.floor(Math.random() * 10000)}`, // Placeholder phone for Google users
           role: 'customer',
           avatar: payload.picture,
           membershipLevel: 'Gold Member',

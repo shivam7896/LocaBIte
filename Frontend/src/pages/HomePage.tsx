@@ -121,15 +121,15 @@ export const HomePage: React.FC = () => {
         <div className="max-w-[1280px] mx-auto w-full px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4 font-body-sm text-[12px]">
           <div className="flex items-center gap-2.5">
             <span className="flex h-2 w-2 rounded-full bg-secondary animate-pulse" />
-            <span className="font-bold text-on-surface">Quantum Campus Express</span>
+            <span className="font-bold text-on-surface">LocaBite City Express</span>
             <span className="text-on-surface-variant/70 hidden sm:inline">•</span>
             <span className="text-on-surface-variant font-medium hidden sm:inline">
-              Avg delivery 14 mins across all hostels & departmental blocks
+              Avg delivery 14 mins across all neighborhoods & offices
             </span>
           </div>
           <div className="hidden md:flex items-center gap-3">
             <span className="inline-flex items-center gap-1 font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
-              <span className="material-symbols-outlined text-[13px]">local_activity</span> CAMPUSFREE
+              <span className="material-symbols-outlined text-[13px]">local_activity</span> CITYFREE
             </span>
             <span className="text-on-surface-variant">Free delivery on orders over ₹149</span>
           </div>
@@ -145,7 +145,7 @@ export const HomePage: React.FC = () => {
               <div className="inline-flex items-center gap-2 bg-surface-container-low px-3 py-1 rounded-full w-fit">
                 <span className="material-symbols-outlined text-secondary text-[16px]">verified</span>
                 <span className="font-label-sm text-[11px] text-on-surface-variant font-semibold">
-                  Verified Campus Merchant Network • 120+ Outlets
+                  Verified Local Merchant Network • 120+ Outlets
                 </span>
               </div>
 
@@ -155,7 +155,7 @@ export const HomePage: React.FC = () => {
                   <span className="text-primary">At your door in 15 mins.</span>
                 </h1>
                 <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-                  Order freshly prepared meals from beloved Roorkee restaurants, or campus pantry essentials delivered directly to your hostel gate.
+                  Order freshly prepared meals from beloved local restaurants, or pantry essentials delivered directly to your door.
                 </p>
               </div>
 
@@ -187,7 +187,7 @@ export const HomePage: React.FC = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="font-headline-sm text-headline-sm font-bold text-on-surface">₹0 Fees</span>
-                  <span className="text-[12px] text-on-surface-variant">With code CAMPUSFREE</span>
+                  <span className="text-[12px] text-on-surface-variant">With code CITYFREE</span>
                 </div>
               </div>
             </div>
@@ -207,7 +207,7 @@ export const HomePage: React.FC = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                   <div className="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur-md px-2.5 py-1 rounded-md text-[11px] font-bold text-on-surface shadow-sm">
-                    Trending in Hostels
+                    Trending in your area
                   </div>
                   <div className="absolute bottom-3 left-3 right-3 text-white">
                     <p className="text-[16px] font-bold leading-tight">Cheese Burst Supreme Pizza</p>
@@ -251,7 +251,7 @@ export const HomePage: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                     <div className="absolute bottom-2.5 left-2.5 text-white">
                       <span className="text-[10px] font-bold uppercase tracking-wider bg-tertiary-container px-1.5 py-0.5 rounded text-white">
-                        Campus Favorite
+                        Local Favorite
                       </span>
                       <p className="text-[13px] font-bold leading-tight mt-1">Ali Baik Crispy Chicken</p>
                     </div>
@@ -324,8 +324,8 @@ export const HomePage: React.FC = () => {
               </div>
               <p className="font-body-sm text-[13px] text-on-surface-variant mt-0.5">
                 {activeCategory === 'all'
-                  ? 'Fastest dispatch dishes and grocery essentials around Quantum University.'
-                  : `Top-rated options in ${categories.find(c => c.id === activeCategory)?.name || 'this category'} from verified campus kitchens.`}
+                  ? 'Fastest dispatch dishes and grocery essentials in your city.'
+                  : `Top-rated options in ${categories.find(c => c.id === activeCategory)?.name || 'this category'} from verified local kitchens.`}
               </p>
             </div>
 
@@ -457,7 +457,7 @@ export const HomePage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-3">
             <div>
               <h2 className="font-headline-md text-headline-md text-on-surface tracking-tight font-bold">
-                Popular Restaurants Near Campus
+                Popular Restaurants Near You
               </h2>
               <p className="font-body-sm text-[13px] text-on-surface-variant">
                 Handpicked kitchens delivering fast with live preparation status.
@@ -545,7 +545,7 @@ export const HomePage: React.FC = () => {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-label-sm text-[11px] uppercase tracking-wider text-secondary-container font-bold">
-                  Campus Rush Hour
+                  City Rush Hour
                 </span>
                 <span className="font-label-lg text-[14px] font-bold text-surface">
                   Special Evening Drop Rates
@@ -587,7 +587,7 @@ export const HomePage: React.FC = () => {
                 </h2>
               </div>
               <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                Daily milk, fresh fruits, vegetables and campus pantry staples from local dark stores.
+                Daily milk, fresh fruits, vegetables and pantry staples from local dark stores.
               </p>
             </div>
 
