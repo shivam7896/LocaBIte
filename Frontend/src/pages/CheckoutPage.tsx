@@ -32,7 +32,7 @@ export const CheckoutPage: React.FC = () => {
     clearCart
   } = useCart();
 
-  const { placeOrder } = useOrder();
+  const { placeOrder, cancelOrder } = useOrder();
 
   const [couponInput, setCouponInput] = useState<string>('');
   const [couponMsg, setCouponMsg] = useState<{ text: string; isError: boolean } | null>(null);
@@ -86,6 +86,11 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
+    if (!selectedAddress || selectedAddress.id === 'addr-default' || selectedAddress.building === 'No location selected') {
+      alert('Please select or add a delivery address before placing your order.');
+      return;
+    }
+
     setIsPlacingOrder(true);
 
     try {
@@ -119,13 +124,24 @@ export const CheckoutPage: React.FC = () => {
                 description: `Order #${targetId}`,
                 order_id: rzpRes.data.razorpayOrderId,
                 handler: async (response: any) => {
-                  await api.payments.verifyPayment({
-                    orderId: targetId,
-                    razorpayOrderId: response.razorpay_order_id,
-                    razorpayPaymentId: response.razorpay_payment_id,
-                    razorpaySignature: response.razorpay_signature
-                  });
-                  finalizeOrder(targetId);
+                  try {
+                    const verifyRes = await api.payments.verifyPayment({
+                      orderId: targetId,
+                      razorpayOrderId: response.razorpay_order_id,
+                      razorpayPaymentId: response.razorpay_payment_id,
+                      razorpaySignature: response.razorpay_signature
+                    });
+                    
+                    if (verifyRes && verifyRes.success) {
+                      finalizeOrder(targetId);
+                    } else {
+                      setIsPlacingOrder(false);
+                      alert(verifyRes?.message || 'Payment verification failed. Please contact support.');
+                    }
+                  } catch (err: any) {
+                    setIsPlacingOrder(false);
+                    alert(err.message || 'An error occurred during payment verification.');
+                  }
                 },
                 prefill: {
                   name: selectedAddress.building || 'Campus Student',
@@ -135,7 +151,7 @@ export const CheckoutPage: React.FC = () => {
                 modal: {
                   ondismiss: async () => {
                     setIsPlacingOrder(false);
-                    await api.orders.cancel(targetId, 'Payment cancelled by user');
+                    await cancelOrder('Payment cancelled by user');
                     alert('Payment was cancelled. You can try placing the order again.');
                   }
                 }
@@ -683,6 +699,20 @@ export const CheckoutPage: React.FC = () => {
                   </div>
                 </button>
               )}
+
+              <button
+                type="button"
+                disabled={isPlacingOrder}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to cancel this checkout and empty your tray?')) {
+                    clearCart();
+                    navigate('/');
+                  }
+                }}
+                className="w-full bg-surface-container hover:bg-surface-container-high text-error py-3 rounded-full font-label-md font-bold transition-colors mt-2 disabled:opacity-50"
+              >
+                Cancel Checkout & Empty Tray
+              </button>
 
               <div className="flex items-center justify-center gap-2 text-center text-on-surface-variant font-body-sm text-[11px] pt-1">
                 <span className="material-symbols-outlined text-[16px] text-secondary">

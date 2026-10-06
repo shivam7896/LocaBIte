@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useOrder } from '../context/OrderContext';
+import { useCart } from '../context/CartContext';
 import { VegBadge } from '../components/VegBadge';
-import { getSocket } from '../services/api';
+import { getSocket, api } from '../services/api';
 
 export const OrderTrackingPage: React.FC = () => {
   const { activeOrder, pastOrders, reorder, updateOrderStatus } = useOrder();
+  const { syncCart } = useCart();
   const [showCallModal, setShowCallModal] = useState<boolean>(false);
   const [showSupportModal, setShowSupportModal] = useState<boolean>(false);
   const [reorderNotice, setReorderNotice] = useState<string | null>(null);
@@ -133,6 +135,7 @@ export const OrderTrackingPage: React.FC = () => {
                       onClick={async () => {
                         const ok = await reorder(order.id);
                         if (ok) {
+                          await syncCart();
                           setReorderNotice(`Items from #${order.orderNumber || order.id} added to tray!`);
                           setTimeout(() => setReorderNotice(null), 4000);
                         }
@@ -710,8 +713,25 @@ export const OrderTrackingPage: React.FC = () => {
               ].map(reason => (
                 <button
                   key={reason}
-                  onClick={() => {
-                    alert(`Reported: "${reason}". An agent has been alerted and will ping your phone shortly!`);
+                  onClick={async () => {
+                    if (reason === 'Cancel current active order') {
+                      if (!['placed', 'confirmed'].includes(activeOrder.status)) {
+                        alert(`Sorry, your order is already ${activeOrder.status} and cannot be cancelled now.`);
+                        setShowSupportModal(false);
+                        return;
+                      }
+                      if (window.confirm("Are you sure you want to cancel this order?")) {
+                        try {
+                          await api.orders.cancel(activeOrder.id, "Customer requested cancellation via Support");
+                          alert("Order has been successfully cancelled.");
+                          window.location.reload();
+                        } catch (err: any) {
+                          alert(err.message || "Could not cancel the order.");
+                        }
+                      }
+                    } else {
+                      alert(`Reported: "${reason}". An agent has been alerted and will ping your phone shortly!`);
+                    }
                     setShowSupportModal(false);
                   }}
                   className="p-3 text-left rounded-xl bg-surface-container-low hover:bg-surface-container font-label-md text-[13px] text-on-surface transition-colors"

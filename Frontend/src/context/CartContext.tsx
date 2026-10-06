@@ -45,6 +45,7 @@ interface CartContextType {
   setSelectedAddress: (addr: Address) => void;
   deliveryInstruction: string;
   setDeliveryInstruction: (inst: string) => void;
+  syncCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -86,6 +87,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     fetchCartAndCoupons();
   }, []);
+
+  const syncCart = async () => {
+    try {
+      const cartRes = await api.cart.get();
+      if (cartRes.success && cartRes.data?.items) {
+        setItems(cartRes.data.items);
+      }
+    } catch (err) {
+      console.warn('Sync cart error:', err);
+    }
+  };
 
   // Compute item total
   const itemTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -243,6 +255,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     api.cart.removeCoupon();
   };
 
+  const handleSetDriverTip = (tip: number) => {
+    setDriverTip(tip);
+    api.cart.updateTip(tip);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -256,7 +273,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deliveryFee,
         taxesAndHandling,
         driverTip,
-        setDriverTip,
+        setDriverTip: handleSetDriverTip,
         appliedPromo,
         discount,
         availableCoupons: coupons,
@@ -267,7 +284,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         selectedAddress,
         setSelectedAddress,
         deliveryInstruction,
-        setDeliveryInstruction
+        setDeliveryInstruction,
+        syncCart
       }}
     >
       {children}

@@ -77,7 +77,7 @@ export const NotificationBell: React.FC = () => {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface-container-lowest border border-outline-variant/40 rounded-3xl shadow-level-4 z-50 overflow-hidden flex flex-col text-xs animate-in fade-in slide-in-from-top-2">
+        <div className="absolute right-0 mt-2 w-[90vw] max-w-[360px] sm:w-96 bg-surface-container-lowest border border-outline-variant/40 rounded-3xl shadow-level-4 z-50 overflow-hidden flex flex-col text-xs animate-in fade-in slide-in-from-top-2">
           {/* Header */}
           <div className="p-3.5 sm:p-4 bg-surface-container-low/70 border-b border-outline-variant/30 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -117,59 +117,7 @@ export const NotificationBell: React.FC = () => {
             </div>
           </div>
 
-          {/* Desktop Push Alert Banner */}
-          {permissionStatus !== 'granted' && (
-            <div className="p-2.5 bg-primary/10 border-b border-primary/20 flex items-center justify-between gap-2 px-3.5">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-primary">
-                <span className="material-symbols-outlined text-[16px] shrink-0">campaign</span>
-                <span>Enable Desktop Popups</span>
-              </div>
-              <button
-                onClick={requestDesktopPermission}
-                className="px-2.5 py-1 rounded-lg bg-primary text-on-primary text-[10px] font-bold shrink-0 hover:bg-primary-container transition-all cursor-pointer shadow-2xs"
-              >
-                Allow
-              </button>
-            </div>
-          )}
 
-          {/* 1-Click Interactive Test Simulator */}
-          <div className="p-3 bg-surface-container-high/40 border-b border-outline-variant/30 flex flex-col gap-1.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-              1-Click Live Test Simulation:
-            </span>
-            <div className="grid grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => sendTestNotification('customer')}
-                className="py-1.5 px-2 rounded-xl bg-surface-container-lowest hover:bg-emerald-500/15 hover:text-emerald-700 dark:hover:text-emerald-300 border border-outline-variant/40 font-bold text-[10px] transition-all text-center flex flex-col items-center gap-0.5 cursor-pointer"
-                title="Send Customer Order Confirmed Notification"
-              >
-                <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
-                <span>Customer</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => sendTestNotification('admin')}
-                className="py-1.5 px-2 rounded-xl bg-surface-container-lowest hover:bg-primary/15 hover:text-primary border border-outline-variant/40 font-bold text-[10px] transition-all text-center flex flex-col items-center gap-0.5 cursor-pointer"
-                title="Send Admin New Order Notification"
-              >
-                <span className="material-symbols-outlined text-[16px] text-primary">notifications_active</span>
-                <span>Admin</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => sendTestNotification('rider')}
-                className="py-1.5 px-2 rounded-xl bg-surface-container-lowest hover:bg-secondary/15 hover:text-secondary border border-outline-variant/40 font-bold text-[10px] transition-all text-center flex flex-col items-center gap-0.5 cursor-pointer"
-                title="Send Rider Dispatch Notification"
-              >
-                <span className="material-symbols-outlined text-[16px] text-secondary">two_wheeler</span>
-                <span>Rider</span>
-              </button>
-            </div>
-          </div>
 
           {/* Notifications List */}
           <div className="max-h-72 overflow-y-auto divide-y divide-outline-variant/20">
@@ -178,7 +126,7 @@ export const NotificationBell: React.FC = () => {
                 <span className="material-symbols-outlined text-[32px] opacity-40">notifications_paused</span>
                 <p className="font-bold text-[12px]">No notifications yet</p>
                 <p className="text-[11px] opacity-80">
-                  Try clicking a test button above to hear the chime and see the live banner!
+                  You will see your order updates here!
                 </p>
               </div>
             ) : (

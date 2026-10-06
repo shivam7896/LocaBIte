@@ -171,15 +171,9 @@ export class OrderController {
 
       await order.save();
 
-      // Clear the user's cart
-      if (cart) {
-        cart.items = [];
-        cart.appliedPromo = null;
-        cart.discount = 0;
-        cart.driverTip = 0;
-        cart.calculateTotals();
-        await cart.save();
-      }
+      // We DO NOT clear the cart here. The frontend will call api.cart.clear() 
+      // ONLY after the payment is successfully verified or COD is placed.
+      // This ensures the cart is not lost if the user cancels the Razorpay payment modal.
 
       // Broadcast order placed to real-time sockets
       emitOrderStatusUpdate(orderId, order);

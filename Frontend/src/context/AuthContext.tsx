@@ -118,7 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     api.auth.logout();
     localStorage.removeItem('locabite_token');
+    localStorage.removeItem('locabite_notifications');
     setUser(null);
+    setIsLoggedIn(false);
+    setLoginStep('input');
+  };
     setIsLoggedIn(false);
     setLoginStep('input');
   };

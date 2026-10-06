@@ -180,7 +180,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!activeOrder) return false;
     const res = await api.orders.cancel(activeOrder.id, reason);
     if (res.success && res.data) {
-      setActiveOrder(res.data);
+      setActiveOrder(null);
+      setPastOrders(prev => [res.data, ...prev]);
       return true;
     }
     return false;
