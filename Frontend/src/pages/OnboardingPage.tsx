@@ -5,52 +5,6 @@ import { useCart } from '../context/CartContext';
 import { DietaryType, Address } from '../types';
 import { api } from '../services/api';
 
-const campusDropAddresses: Address[] = [
-  {
-    id: 'addr-hostel-c',
-    title: 'Boys Hostel Block C',
-    type: 'hostel',
-    campus: 'Quantum University, Roorkee',
-    building: 'Block C, Room 204',
-    room: 'Room 204',
-    landmark: 'Near Quadrangle Lawn',
-    phone: '+91 98765 43210',
-    isPrimary: true
-  },
-  {
-    id: 'addr-hostel-a',
-    title: 'Girls Hostel Block A',
-    type: 'hostel',
-    campus: 'Quantum University, Roorkee',
-    building: 'Block A, Gate 1',
-    room: 'Lobby Drop Box',
-    landmark: 'Opposite Library Block',
-    phone: '+91 98765 43210',
-    isPrimary: false
-  },
-  {
-    id: 'addr-hostel-b',
-    title: 'PG Hostel Block B',
-    type: 'hostel',
-    campus: 'Quantum University, Roorkee',
-    building: 'Block B, Common Room',
-    room: 'Reception',
-    landmark: 'Near Cafeteria Lawn',
-    phone: '+91 98765 43210',
-    isPrimary: false
-  },
-  {
-    id: 'addr-library',
-    title: 'Central Library Study Hub',
-    type: 'department',
-    campus: 'Quantum University, Roorkee',
-    building: 'Academic Block 2',
-    room: 'Reading Room Lobby',
-    landmark: 'Main Quadrangle',
-    phone: '+91 98765 43210',
-    isPrimary: false
-  }
-];
 
 export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,7 +15,7 @@ export const OnboardingPage: React.FC = () => {
   const [selectedDietary, setSelectedDietary] = useState<DietaryType[]>(['non-veg']);
   const [selectedHostelIndex, setSelectedHostelIndex] = useState<number>(0);
   const [addresses, setAddresses] = useState<Address[]>(
-    user?.addresses && user.addresses.length > 0 ? user.addresses : campusDropAddresses
+    user?.addresses && user.addresses.length > 0 ? user.addresses : []
   );
 
   useEffect(() => {
@@ -274,37 +228,58 @@ export const OnboardingPage: React.FC = () => {
             </h2>
 
             <div className="flex flex-col gap-2">
-              {addresses.map((addr, idx) => {
-                const isSelected = selectedHostelIndex === idx;
-                return (
-                  <div
-                    key={addr.id}
-                    onClick={() => setSelectedHostelIndex(idx)}
-                    className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                      isSelected
-                        ? 'border-primary bg-primary/5 shadow-xs font-semibold'
-                        : 'border-outline-variant/30 hover:bg-surface-container-low'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-primary text-[20px]">
-                        home_pin
-                      </span>
-                      <div>
-                        <span className="text-[13px] font-bold text-on-surface">{addr.title}</span>
-                        <span className="text-[11px] text-on-surface-variant block">
-                          {addr.building}, {addr.campus}
+              {addresses.length === 0 ? (
+                <div className="p-4 border border-dashed border-outline-variant rounded-xl text-center">
+                  <p className="text-on-surface-variant text-[13px] mb-2">No delivery locations found.</p>
+                  <button className="text-primary text-[13px] font-bold">+ Add New Location</button>
+                </div>
+              ) : (
+                addresses.map((addr, idx) => {
+                  const isSelected = selectedHostelIndex === idx;
+                  return (
+                    <div
+                      key={addr.id}
+                      onClick={() => setSelectedHostelIndex(idx)}
+                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between group ${
+                        isSelected
+                          ? 'border-primary bg-primary/5 shadow-xs font-semibold'
+                          : 'border-outline-variant/30 hover:bg-surface-container-low'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary text-[20px]">
+                          home_pin
                         </span>
+                        <div>
+                          <span className="text-[13px] font-bold text-on-surface">{addr.title}</span>
+                          <span className="text-[11px] text-on-surface-variant block">
+                            {addr.building}, {addr.campus}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isSelected && (
+                          <span className="material-symbols-outlined text-primary text-[20px]">
+                            check_circle
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Add edit location logic here in the future
+                          }}
+                          className="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Edit Location"
+                        >
+                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant">
+                            edit
+                          </span>
+                        </button>
                       </div>
                     </div>
-                    {isSelected && (
-                      <span className="material-symbols-outlined text-primary text-[20px]">
-                        check_circle
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </section>
 

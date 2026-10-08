@@ -3,8 +3,9 @@ import { AuthenticatedRequest } from '../types';
 import { Order } from '../models/Order';
 import { Payment } from '../models/Payment';
 import { PaymentService } from '../services/paymentService';
-import { emitOrderStatusUpdate } from '../sockets/orderSocket';
+import { emitOrderStatusUpdate, emitNewOrderBroadcast, emitLiveNotification } from '../sockets/orderSocket';
 import { sendResponse, sendError } from '../utils/apiResponse';
+import { EmailService } from '../services/emailService';
 import { logger } from '../utils/logger';
 import { ENV } from '../config/env';
 
@@ -111,6 +112,54 @@ export class PaymentController {
 
       // Emit real-time update
       emitOrderStatusUpdate(order.id, order);
+
+      // Now that payment is successful, broadcast the new order
+      emitNewOrderBroadcast(order);
+
+      // Dispatch Order Confirmation Email via Resend
+      EmailService.sendOrderNotification({
+        order,
+        event: 'confirmed'
+      }).catch(err => {
+        logger.error(`[ORDER] Failed to dispatch confirmation email for #${order.orderNumber}: ${err.message}`);
+      });
+
+      // 1. Notification for Customer: Order Confirmed
+      emitLiveNotification({
+        role: 'customer',
+        type: 'order_confirmed',
+        title: 'Your Order is Confirmed! 🎉',
+        message: `Order #${order.orderNumber} (₹${order.totalToPay}) has been confirmed and received by the kitchen. Preparing your fresh items!`,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalToPay: order.totalToPay,
+        address: order.deliveryAddress?.building
+      });
+
+      // 2. Notification for Admin / Merchant: New Order Received
+      emitLiveNotification({
+        role: 'admin',
+        type: 'new_order',
+        title: '🔔 New Order Received!',
+        message: `Order #${order.orderNumber} for ₹${order.totalToPay} received from ${order.deliveryAddress?.building || 'Campus'}.`,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalToPay: order.totalToPay,
+        customerName: order.deliveryAddress?.title || 'Campus Member',
+        address: `${order.deliveryAddress?.building}, ${order.deliveryAddress?.room}`
+      });
+
+      // 3. Notification for Rider: New Delivery Available
+      emitLiveNotification({
+        role: 'rider',
+        type: 'new_order',
+        title: '⚡ New Delivery Available!',
+        message: `Order #${order.orderNumber} • ₹${order.totalToPay} to ${order.deliveryAddress?.building}. Tap to accept delivery mission.`,
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalToPay: order.totalToPay,
+        address: order.deliveryAddress?.building
+      });
 
       return sendResponse({
         res,
