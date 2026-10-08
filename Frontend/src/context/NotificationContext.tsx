@@ -131,12 +131,17 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return 'default';
   });
 
-  // Save notifications to localStorage
+  // Save notifications to localStorage and clear when logged out
   useEffect(() => {
+    if (!user) {
+      setNotifications([]);
+      setToasts([]);
+      return;
+    }
     try {
       localStorage.setItem('locabite_notifications', JSON.stringify(notifications.slice(0, 50)));
     } catch {}
-  }, [notifications]);
+  }, [notifications, user]);
 
   // Request native OS desktop notifications
   const requestDesktopPermission = async (): Promise<boolean> => {
@@ -223,6 +228,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const socket = getSocket();
 
     const handleNotification = (notif: WebsiteNotification) => {
+      if (!user) return; // Do not show notifications if the user is not signed in
+
       // Filter out notifications not meant for this user's role
       if (notif.role && notif.role !== 'all' && notif.role !== user?.role) {
         return;

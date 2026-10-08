@@ -123,9 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoggedIn(false);
     setLoginStep('input');
   };
-    setIsLoggedIn(false);
-    setLoginStep('input');
-  };
 
   const loginAsDemo = async () => {
     const res = await api.auth.demoLogin();
