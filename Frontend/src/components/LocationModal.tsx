@@ -19,8 +19,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
   useEffect(() => {
     if (isOpen) {
       api.auth.getAddresses().then(res => {
-        if (res.success && res.data && res.data.length > 0) {
-          setAddresses(res.data);
+        if (res.success && res.data && res.data.addresses && res.data.addresses.length > 0) {
+          setAddresses(res.data.addresses);
         } else if (user?.addresses && user.addresses.length > 0) {
           setAddresses(user.addresses);
         }

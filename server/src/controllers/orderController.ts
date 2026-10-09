@@ -244,11 +244,10 @@ export class OrderController {
     }
   }
 
-  /**
-   * Get Order by ID or Order Number
-   */
   static async getOrderById(req: AuthenticatedRequest, res: Response): Promise<any> {
     const { orderId } = req.params;
+    const userId = req.user?.userId;
+    const userRole = req.user?.role;
     try {
       const order = await Order.findOne({
         $or: [{ id: orderId }, { orderNumber: orderId }, { _id: orderId.match(/^[0-9a-fA-F]{24}$/) ? orderId : null }]
@@ -256,6 +255,15 @@ export class OrderController {
 
       if (!order) {
         return sendError(res, 'Order not found', 404);
+      }
+      
+      // Enforce ownership: A customer can only view their own order.
+      if (userRole === 'customer' && order.userId !== userId) {
+        return sendError(res, 'Unauthorized access to this order.', 403);
+      }
+      // If guest (no userId) tries to access, deny.
+      if (!userId && order.userId) {
+        return sendError(res, 'Please log in to view this order.', 401);
       }
 
       return sendResponse({

@@ -20,6 +20,9 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [addressLoading, setAddressLoading] = useState(false);
   const [address, setAddress] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const fetchAddress = async (lat: number, lng: number) => {
     setAddressLoading(true);
@@ -32,6 +35,44 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
     } finally {
       setAddressLoading(false);
     }
+  };
+
+  const searchAddress = async (query: string) => {
+    if (!query || query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+    setIsSearching(true);
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+      const data = await response.json();
+      setSuggestions(data);
+    } catch (e) {
+      console.warn("Failed to search address:", e);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      searchAddress(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const handleSuggestionSelect = (suggestion: any) => {
+    const lat = parseFloat(suggestion.lat);
+    const lon = parseFloat(suggestion.lon);
+    setPosition([lat, lon]);
+    setAddress({
+      display_name: suggestion.display_name,
+      address: {
+        city: suggestion.name,
+      }
+    });
+    setSearchQuery('');
+    setSuggestions([]);
   };
 
   const locateUser = (isInitial = false) => {
@@ -103,6 +144,45 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Search Input */}
+      <div className="relative z-50">
+        <div className="flex items-center bg-surface-container-low rounded-xl px-3 py-2 border border-outline-variant/30 focus-within:border-primary transition-colors">
+          <span className="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+          <input
+            type="text"
+            placeholder="Search for your address or locality..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-on-surface font-body-md placeholder:text-on-surface-variant/70"
+          />
+          {isSearching && <span className="material-symbols-outlined animate-spin text-primary ml-2">progress_activity</span>}
+          {searchQuery && (
+            <button onClick={() => { setSearchQuery(''); setSuggestions([]); }} className="ml-2 text-on-surface-variant hover:text-on-surface">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          )}
+        </div>
+        
+        {/* Suggestions Dropdown */}
+        {suggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
+            {suggestions.map((suggestion, idx) => (
+              <div 
+                key={idx}
+                onClick={() => handleSuggestionSelect(suggestion)}
+                className="px-4 py-3 hover:bg-surface-container-low cursor-pointer border-b border-outline-variant/10 last:border-b-0 flex items-start gap-3"
+              >
+                <span className="material-symbols-outlined text-on-surface-variant mt-0.5">location_on</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-label-md text-on-surface font-semibold truncate">{suggestion.name}</p>
+                  <p className="text-[12px] text-on-surface-variant line-clamp-1">{suggestion.display_name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="relative w-full h-[300px] rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm" style={{ zIndex: 10 }}>
         <MapContainer center={position} zoom={15} scrollWheelZoom={true} className="w-full h-full" style={{ zIndex: 10 }}>
           <TileLayer

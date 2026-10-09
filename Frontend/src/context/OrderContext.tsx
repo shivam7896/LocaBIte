@@ -24,13 +24,21 @@ interface OrderContextType {
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
+import { useAuth } from './AuthContext';
+
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [pastOrders, setPastOrders] = useState<Order[]>([]);
 
-  // Load orders from backend API
+  // Load orders from backend API when user changes
   useEffect(() => {
     const fetchOrders = async () => {
+      if (!user) {
+        setActiveOrder(null);
+        setPastOrders([]);
+        return;
+      }
       try {
         const res = await api.orders.getMyOrders();
         if (res.success && res.data) {
@@ -48,7 +56,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
     fetchOrders();
-  }, []);
+  }, [user?.id]);
 
   // Connect to Socket.IO for real-time tracking updates
   useEffect(() => {

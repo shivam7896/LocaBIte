@@ -50,7 +50,10 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+import { useAuth } from './AuthContext';
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [coupons, setCoupons] = useState<any[]>([]);
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
@@ -81,12 +84,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (profileRes.success && profileRes.data?.selectedAddress) {
           setSelectedAddress(profileRes.data.selectedAddress);
         }
+        if (!user) {
+          setSelectedAddress(defaultAddress); // Reset address if logged out
+        }
       } catch (err: any) {
         console.warn('Cart initialization error:', err.message);
       }
     };
     fetchCartAndCoupons();
-  }, []);
+  }, [user?.id]);
 
   const syncCart = async () => {
     try {
