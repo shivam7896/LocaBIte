@@ -299,6 +299,12 @@ export class AuthController {
       if (!user) {
         return sendError(res, 'User not found', 404);
       }
+      
+      // Fallback: if no selected address but addresses exist, pick the first one
+      if (!user.selectedAddress && user.addresses && user.addresses.length > 0) {
+        user.selectedAddress = user.addresses[0];
+      }
+
       return sendResponse({
         res,
         data: user
@@ -390,7 +396,7 @@ export class AuthController {
 
       const newAddress = {
         ...req.body,
-        id: `addr-${Date.now()}`
+        id: req.body.id || `addr-${Date.now()}`
       };
 
       if (newAddress.isPrimary || user.addresses.length === 0) {
