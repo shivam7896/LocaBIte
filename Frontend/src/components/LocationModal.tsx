@@ -14,7 +14,9 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
   const { selectedAddress, setSelectedAddress } = useCart();
   const { user, refreshProfile } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>(user?.addresses || (selectedAddress ? [selectedAddress] : []));
-  const [view, setView] = useState<'list' | 'map'>('list');
+  const [view, setView] = useState<'list' | 'map' | 'details'>('list');
+  const [pendingLocation, setPendingLocation] = useState<any>(null);
+  const [addressForm, setAddressForm] = useState({ room: '', landmark: '', phone: user?.phone || '' });
 
   useEffect(() => {
     if (isOpen) {
@@ -44,16 +46,27 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
     onClose();
   };
 
-  const handleLocationSelected = async (addressDetails: { title: string; fullAddress: string; lat: number; lng: number }) => {
+  const handleLocationSelected = (addressDetails: { title: string; fullAddress: string; lat: number; lng: number }) => {
+    setPendingLocation(addressDetails);
+    setAddressForm(prev => ({ ...prev, phone: user?.phone || '' }));
+    setView('details');
+  };
+
+  const handleSaveDetails = async () => {
+    if (!pendingLocation || !addressForm.phone || !addressForm.room) {
+      alert("Please fill in the required fields (Flat/Room and Phone).");
+      return;
+    }
+
     const newAddress: Address = {
       id: 'addr-' + Date.now(),
-      title: addressDetails.title,
-      type: 'apartment', // Default type for general addresses
-      campus: addressDetails.title,
-      building: addressDetails.fullAddress,
-      room: '',
-      landmark: '',
-      phone: '',
+      title: pendingLocation.title,
+      type: 'apartment',
+      campus: pendingLocation.title,
+      building: pendingLocation.fullAddress,
+      room: addressForm.room,
+      landmark: addressForm.landmark,
+      phone: addressForm.phone,
       isPrimary: false
     };
 
@@ -69,10 +82,12 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
     setAddresses([...addresses, newAddress]);
     handleSelect(newAddress);
     setView('list');
+    setPendingLocation(null);
   };
 
   const handleModalClose = () => {
     setView('list');
+    setPendingLocation(null);
     onClose();
   };
 
@@ -90,10 +105,10 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
             <span className="material-symbols-outlined text-primary text-[24px]">near_me</span>
             <div>
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                {view === 'map' ? 'Choose on Map' : 'Select Delivery Location'}
+                {view === 'map' ? 'Choose on Map' : view === 'details' ? 'Add Details' : 'Select Delivery Location'}
               </h3>
               <p className="text-[12px] text-on-surface-variant">
-                {view === 'map' ? 'Tap anywhere on the map to set location' : 'Direct to your home or office'}
+                {view === 'map' ? 'Tap anywhere on the map to set location' : view === 'details' ? 'Complete your address' : 'Direct to your home or office'}
               </p>
             </div>
           </div>
@@ -167,6 +182,64 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
               </button>
             </div>
           </>
+        {view === 'details' && pendingLocation && (
+          <div className="flex flex-col gap-4">
+            <div className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 flex flex-col gap-1">
+              <span className="font-label-md text-on-surface font-bold">{pendingLocation.title}</span>
+              <span className="text-[12px] text-on-surface-variant line-clamp-2">{pendingLocation.fullAddress}</span>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Flat / Room No. *</label>
+                <input 
+                  type="text" 
+                  value={addressForm.room}
+                  onChange={(e) => setAddressForm({ ...addressForm, room: e.target.value })}
+                  placeholder="e.g. Room 101, B Block"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-2.5 text-on-surface text-[14px] outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Landmark (Optional)</label>
+                <input 
+                  type="text" 
+                  value={addressForm.landmark}
+                  onChange={(e) => setAddressForm({ ...addressForm, landmark: e.target.value })}
+                  placeholder="e.g. Near main gate"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-2.5 text-on-surface text-[14px] outline-none focus:border-primary transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="text-[12px] font-bold text-on-surface-variant mb-1 block">Phone Number *</label>
+                <input 
+                  type="tel" 
+                  value={addressForm.phone}
+                  onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                  placeholder="10-digit mobile number"
+                  className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-2.5 text-on-surface text-[14px] outline-none focus:border-primary transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => setView('map')}
+                className="flex-1 h-11 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md font-bold transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={handleSaveDetails}
+                disabled={!addressForm.room || !addressForm.phone}
+                className="flex-1 h-11 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              >
+                Save & Continue
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
