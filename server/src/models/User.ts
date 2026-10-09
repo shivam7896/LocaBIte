@@ -37,7 +37,7 @@ const AddressSchema = new Schema<UserAddress>(
   {
     id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
     title: { type: String, required: true },
-    type: { type: String, enum: ['hostel', 'department', 'home', 'other'], default: 'hostel' },
+    type: { type: String, enum: ['hostel', 'department', 'home', 'apartment', 'other'], default: 'hostel' },
     campus: { type: String, default: 'Quantum University, Roorkee' },
     building: { type: String, required: true },
     room: { type: String, required: true },
