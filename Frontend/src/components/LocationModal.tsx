@@ -120,12 +120,14 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
           </button>
         </div>
 
-        {view === 'map' ? (
+        {view === 'map' && (
           <MapPicker 
             onLocationSelected={handleLocationSelected} 
             onCancel={() => setView('list')} 
           />
-        ) : (
+        )}
+        
+        {view === 'list' && (
           <>
             <div className="flex flex-col gap-2.5 max-h-72 overflow-y-auto pr-1">
           {addresses.map(addr => {
@@ -182,6 +184,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
               </button>
             </div>
           </>
+        )}
         {view === 'details' && pendingLocation && (
           <div className="flex flex-col gap-4">
             <div className="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 flex flex-col gap-1">

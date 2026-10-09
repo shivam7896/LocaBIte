@@ -596,18 +596,4 @@ export const api = {
         body: JSON.stringify(data)
       })
   },
-
-  // Payments
-  payments: {
-    createRazorpayOrder: (orderId: string) =>
-      request('/payments/razorpay-order', {
-        method: 'POST',
-        body: JSON.stringify({ orderId })
-      }),
-    verifyPayment: (data: { orderId: string; razorpayOrderId: string; razorpayPaymentId: string; razorpaySignature: string }) =>
-      request('/payments/verify', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-  }
 };
