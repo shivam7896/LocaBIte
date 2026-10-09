@@ -23,6 +23,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const fetchAddress = async (lat: number, lng: number) => {
     setAddressLoading(true);
@@ -146,26 +147,43 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
     <div className="flex flex-col gap-4">
       {/* Search Input */}
       <div className="relative z-50">
-        <div className="flex items-center bg-surface-container-low rounded-xl px-3 py-2 border border-outline-variant/30 focus-within:border-primary transition-colors">
-          <span className="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+        <div className="flex items-center bg-surface-container-lowest rounded-xl px-4 py-3 border shadow-sm border-outline-variant/30 focus-within:border-primary transition-colors relative">
+          <span className="material-symbols-outlined text-[#F04F5F] mr-3 text-[22px]">location_on</span>
           <input
             type="text"
             placeholder="Search for your address or locality..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
             className="flex-1 bg-transparent border-none outline-none text-on-surface font-body-md placeholder:text-on-surface-variant/70"
           />
-          {isSearching && <span className="material-symbols-outlined animate-spin text-primary ml-2">progress_activity</span>}
-          {searchQuery && (
+          {isSearching && <span className="material-symbols-outlined animate-spin text-primary mx-2">progress_activity</span>}
+          {searchQuery ? (
             <button onClick={() => { setSearchQuery(''); setSuggestions([]); }} className="ml-2 text-on-surface-variant hover:text-on-surface">
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
+          ) : (
+            <span className="material-symbols-outlined text-on-surface-variant ml-2 text-[24px]">arrow_drop_up</span>
           )}
         </div>
         
-        {/* Suggestions Dropdown */}
-        {suggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
+        {/* Suggestions & GPS Dropdown */}
+        {(isInputFocused || suggestions.length > 0) && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-lg max-h-[320px] overflow-y-auto z-[60]">
+            {/* Detect current location */}
+            <div 
+              onClick={(e) => { e.preventDefault(); locateUser(); setSuggestions([]); setIsInputFocused(false); }}
+              className="px-4 py-4 hover:bg-surface-container-low cursor-pointer border-b border-outline-variant/10 flex items-start gap-3"
+            >
+              <span className="material-symbols-outlined text-[#F04F5F] mt-0.5 text-[22px]">gps_fixed</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-[#F04F5F] text-[15px] font-semibold">Detect current location</p>
+                <p className="text-[13px] text-on-surface-variant mt-0.5">Using GPS</p>
+              </div>
+            </div>
+
+            {/* Address Suggestions */}
             {suggestions.map((suggestion, idx) => (
               <div 
                 key={idx}
