@@ -7,6 +7,7 @@ import { VegBadge } from '../components/VegBadge';
 import { QuantityStepper } from '../components/QuantityStepper';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { LocationModal } from '../components/LocationModal';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ export const CheckoutPage: React.FC = () => {
   const [couponMsg, setCouponMsg] = useState<{ text: string; isError: boolean } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('upi');
   const [isPlacingOrder, setIsPlacingOrder] = useState<boolean>(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState<boolean>(false);
   const { isLoggedIn, loginAsDemo } = useAuth();
 
   const deliveryInstructionsList = [
@@ -346,7 +348,7 @@ export const CheckoutPage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate('/onboarding')}
+                  onClick={() => setIsLocationModalOpen(true)}
                   className="shrink-0 text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg text-[13px] font-bold transition-colors flex items-center gap-1"
                 >
                   <span className="material-symbols-outlined text-[16px]">edit</span>
@@ -729,6 +731,7 @@ export const CheckoutPage: React.FC = () => {
           </aside>
         </div>
       </div>
+      {isLocationModalOpen && <LocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} />}
     </div>
   );
 };
