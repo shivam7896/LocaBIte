@@ -256,7 +256,7 @@ export const MapPicker: React.FC<MapPickerProps> = ({ onLocationSelected, onCanc
             disabled={!position || addressLoading || !address}
             className="flex-1 h-11 rounded-xl bg-primary hover:bg-primary-container text-on-primary font-label-md font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
-            Confirm Location
+            Confirm
           </button>
         </div>
       </div>
