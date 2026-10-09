@@ -2,8 +2,16 @@ import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
+import { verifyAccessToken } from '../utils/jwt';
+import { Order } from '../models/Order';
+import { AuthUserPayload } from '../types';
 
 let io: SocketIOServer | null = null;
+
+// Extend Socket interface to attach authenticated user payload
+export interface AuthenticatedSocket extends Socket {
+  user?: AuthUserPayload;
+}
 
 export const initSocket = (server: HttpServer): SocketIOServer => {
   const allowedOrigins = [
@@ -16,7 +24,6 @@ export const initSocket = (server: HttpServer): SocketIOServer => {
   ];
 
   io = new SocketIOServer(server, {
-
     cors: {
       origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app') || env.NODE_ENV !== 'production') {
@@ -30,85 +37,106 @@ export const initSocket = (server: HttpServer): SocketIOServer => {
     }
   });
 
+  // Authentication Middleware
+  io.use((socket: AuthenticatedSocket, next) => {
+    const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.split(' ')[1];
+    if (!token) {
+      return next(new Error('Authentication token missing'));
+    }
+    try {
+      const decoded = verifyAccessToken(token);
+      socket.user = decoded;
+      next();
+    } catch (err) {
+      return next(new Error('Invalid or expired authentication token'));
+    }
+  });
 
-  io.on('connection', (socket: Socket) => {
-    logger.info(`[Socket.IO] Client connected: ${socket.id}`);
+  io.on('connection', (socket: AuthenticatedSocket) => {
+    logger.info(`[Socket.IO] Client connected: ${socket.id} (User: ${socket.user?.userId}, Role: ${socket.user?.role})`);
+
+    // Private User Notification Room
+    if (socket.user?.userId) {
+      socket.join(`user:${socket.user.userId}`);
+    }
 
     // Order tracking room subscription
-    socket.on('join_order_room', (data: { orderId: string }) => {
-      if (data?.orderId) {
-        socket.join(`order:${data.orderId}`);
-        logger.info(`[Socket.IO] Client ${socket.id} joined room: order:${data.orderId}`);
+    socket.on('join_order_room', async (data: { orderId: string }) => {
+      if (!data?.orderId || !socket.user) return;
+      try {
+        const order = await Order.findById(data.orderId);
+        if (!order) return;
+
+        // Authorize: Only order owner or admin/rider/restaurant_owner can join
+        const isOwner = order.userId.toString() === socket.user.userId;
+        const isAdminOrStaff = ['admin', 'rider', 'restaurant_owner'].includes(socket.user.role);
+        
+        if (isOwner || isAdminOrStaff) {
+          socket.join(`order:${data.orderId}`);
+          logger.info(`[Socket.IO] Client ${socket.id} joined room: order:${data.orderId}`);
+        } else {
+          logger.warn(`[Socket.IO] Client ${socket.id} unauthorized join attempt for order:${data.orderId}`);
+        }
+      } catch (err) {
+        logger.error(`[Socket.IO] Error verifying order room join: ${err}`);
       }
     });
 
     socket.on('leave_order_room', (data: { orderId: string }) => {
       if (data?.orderId) {
         socket.leave(`order:${data.orderId}`);
-        logger.info(`[Socket.IO] Client ${socket.id} left room: order:${data.orderId}`);
       }
     });
 
-    // User room subscription for notifications
-    socket.on('join_user_room', (data: { userId: string }) => {
-      if (data?.userId) {
-        socket.join(`user:${data.userId}`);
-        logger.info(`[Socket.IO] Client ${socket.id} joined room: user:${data.userId}`);
-      }
-    });
-
-    // Fleet / Rider room subscription
+    // Fleet / Rider dispatch subscription (Admin/Rider only)
     socket.on('join_fleet_room', () => {
-      socket.join('admin_fleet');
-      socket.join('rider_dispatch');
-      logger.info(`[Socket.IO] Client ${socket.id} joined fleet & dispatch rooms`);
+      if (socket.user && ['admin', 'rider'].includes(socket.user.role)) {
+        if (socket.user.role === 'admin') socket.join('admin_fleet');
+        socket.join('rider_dispatch');
+        logger.info(`[Socket.IO] Authorized client ${socket.id} joined fleet/dispatch rooms`);
+      } else {
+        logger.warn(`[Socket.IO] Unauthorized join_fleet_room by client ${socket.id}`);
+      }
     });
 
-    // Real-time Driver GPS Location Broadcast from Rider Terminal
-    socket.on(
-      'driver_location_broadcast',
-      (data: {
-        orderId?: string;
-        driverId?: string;
-        driverName?: string;
-        lat: number;
-        lng: number;
-        speed?: number;
-        heading?: number;
-      }) => {
-        if (!data || typeof data.lat !== 'number' || typeof data.lng !== 'number') return;
+    // Real-time Driver GPS Location Broadcast (Rider only)
+    socket.on('driver_location_broadcast', (data: {
+      orderId?: string;
+      lat: number;
+      lng: number;
+      speed?: number;
+      heading?: number;
+    }) => {
+      if (!socket.user || socket.user.role !== 'rider') {
+        logger.warn(`[Socket.IO] Unauthorized driver location broadcast by ${socket.user?.userId}`);
+        return;
+      }
+      
+      if (!data || typeof data.lat !== 'number' || typeof data.lng !== 'number') return;
 
-        const payload = {
-          orderId: data.orderId,
-          driverId: data.driverId || 'driver-1',
-          driverName: data.driverName || 'Rider',
-          lat: data.lat,
-          lng: data.lng,
-          speed: data.speed ?? 24,
-          heading: data.heading ?? 0,
-          timestamp: new Date().toISOString()
-        };
+      const payload = {
+        orderId: data.orderId,
+        driverId: socket.user.userId,
+        driverName: socket.user.email,
+        lat: data.lat,
+        lng: data.lng,
+        speed: data.speed ?? 24,
+        heading: data.heading ?? 0,
+        timestamp: new Date().toISOString()
+      };
 
-        // Broadcast to customer tracking room if on active order
-        if (data.orderId) {
-          io?.to(`order:${data.orderId}`).emit('driver_location_updated', {
-            lat: data.lat,
-            lng: data.lng,
-            speed: payload.speed
-          });
-        }
-
-        // Global broadcast for admin fleet map and real-time listeners
-        io?.emit('driver_location_updated', {
-          orderId: data.orderId,
+      // Broadcast to specific order room (Customers track here safely)
+      if (data.orderId) {
+        io?.to(`order:${data.orderId}`).emit('driver_location_updated', {
           lat: data.lat,
           lng: data.lng,
           speed: payload.speed
         });
-
-        io?.emit('fleet_location_updated', payload);
       }
-    );
+
+      // Broadcast only to admin fleet room, NOT global
+      io?.to('admin_fleet').emit('fleet_location_updated', payload);
+    });
 
     socket.on('disconnect', () => {
       logger.info(`[Socket.IO] Client disconnected: ${socket.id}`);
@@ -127,8 +155,9 @@ export const getIO = (): SocketIOServer => {
 
 export const emitOrderStatusUpdate = (orderId: string, orderData: any): void => {
   if (io) {
+    // Only emit to authorized rooms, NOT globally
     io.to(`order:${orderId}`).emit('order_status_updated', orderData);
-    io.emit('order_status_updated', orderData);
+    io.to('admin_fleet').emit('order_status_updated', orderData);
     logger.info(`[Socket.IO] Emitted order_status_updated for order: ${orderId}`);
   }
 };
@@ -139,8 +168,7 @@ export const emitDriverLocationUpdate = (
 ): void => {
   if (io) {
     io.to(`order:${orderId}`).emit('driver_location_updated', location);
-    io.emit('driver_location_updated', { orderId, ...location });
-    io.emit('fleet_location_updated', {
+    io.to('admin_fleet').emit('fleet_location_updated', {
       orderId,
       driverId: location.driverId || 'driver-1',
       lat: location.lat,
@@ -153,7 +181,8 @@ export const emitDriverLocationUpdate = (
 
 export const emitNewOrderBroadcast = (order: any): void => {
   if (io) {
-    io.emit('new_order_available', order);
+    // NEVER emit a full order object globally. Only to admins and riders dispatch room.
+    io.to('admin_fleet').emit('new_order_available', order);
     io.to('rider_dispatch').emit('new_order_available', order);
     logger.info(`[Socket.IO] Broadcasted new_order_available for order: ${order.id || order.orderNumber}`);
   }
@@ -174,7 +203,7 @@ export interface LiveNotificationPayload {
   timestamp?: string;
 }
 
-export const emitLiveNotification = (notification: LiveNotificationPayload): void => {
+export const emitLiveNotification = (notification: LiveNotificationPayload, userId?: string): void => {
   if (!io) return;
   const payload = {
     ...notification,
@@ -182,25 +211,18 @@ export const emitLiveNotification = (notification: LiveNotificationPayload): voi
     timestamp: notification.timestamp || new Date().toISOString()
   };
 
-  // Broadcast to global notification channel
-  io.emit('order_notification', payload);
-
-  // Broadcast to role-specific channels
-  if (payload.role === 'customer' || payload.role === 'all') {
-    if (payload.orderId) {
-      io.to(`order:${payload.orderId}`).emit('customer_order_notification', payload);
-    }
-    io.emit('customer_order_notification', payload);
+  if (userId && (payload.role === 'customer' || payload.role === 'all')) {
+    io.to(`user:${userId}`).emit('customer_order_notification', payload);
+  } else if (payload.role === 'customer' || payload.role === 'all') {
+     if (payload.orderId) io.to(`order:${payload.orderId}`).emit('customer_order_notification', payload);
   }
 
   if (payload.role === 'admin' || payload.role === 'all') {
     io.to('admin_fleet').emit('admin_new_order_notification', payload);
-    io.emit('admin_new_order_notification', payload);
   }
 
   if (payload.role === 'rider' || payload.role === 'all') {
     io.to('rider_dispatch').emit('rider_dispatch_notification', payload);
-    io.emit('rider_dispatch_notification', payload);
   }
 
   logger.info(`[Socket.IO Notification] ${payload.type} -> ${payload.role}: "${payload.title}"`);

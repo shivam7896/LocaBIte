@@ -96,13 +96,9 @@ export class OrderController {
 
         calculatedItemTotal += verifiedUnitPrice * quantityRequested;
 
-        // Decrement stock in database if finite stock
-        if (dbRecord.stockQuantity !== undefined && dbRecord.stockQuantity > 0) {
-          dbRecord.stockQuantity = Math.max(0, dbRecord.stockQuantity - quantityRequested);
-          await dbRecord.save();
-        }
-
+        // Collect the dbRecord to decrement later
         verifiedOrderItems.push({
+          dbRecord,
           cartItemId: item.cartItemId || `cart-${dbRecord.id}`,
           id: dbRecord.id,
           sku: dbRecord.sku || dbRecord.id,
@@ -115,6 +111,16 @@ export class OrderController {
           restaurantId: dbRecord.restaurantId || dbRecord.merchantId || 'st_TYnRD3iI21IWyp',
           customizations: item.customizations
         });
+      }
+
+      // If all items are valid, apply stock decrements now (avoiding partial deductions)
+      for (const vItem of verifiedOrderItems) {
+        const record = vItem.dbRecord;
+        if (record.stockQuantity !== undefined && record.stockQuantity > 0) {
+          record.stockQuantity = Math.max(0, record.stockQuantity - vItem.quantity);
+          await record.save();
+        }
+        delete vItem.dbRecord; // Remove DB record object before saving to Order
       }
 
       // Compute server-calculated totals
