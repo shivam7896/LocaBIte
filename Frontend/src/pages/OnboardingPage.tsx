@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { DietaryType, Address } from '../types';
 import { api } from '../services/api';
+import { LocationModal } from '../components/LocationModal';
 
 
 export const OnboardingPage: React.FC = () => {
@@ -17,14 +18,19 @@ export const OnboardingPage: React.FC = () => {
   const [addresses, setAddresses] = useState<Address[]>(
     user?.addresses && user.addresses.length > 0 ? user.addresses : []
   );
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
   useEffect(() => {
+    fetchAddresses();
+  }, []);
+
+  const fetchAddresses = () => {
     api.auth.getAddresses().then(res => {
-      if (res.success && res.data && res.data.length > 0) {
-        setAddresses(res.data);
+      if (res.success && res.data && res.data.addresses && res.data.addresses.length > 0) {
+        setAddresses(res.data.addresses);
       }
     }).catch(e => console.warn('Load addresses error:', e));
-  }, []);
+  };
 
   const toggleMode = (mode: 'food' | 'mart') => {
     if (selectedModes.includes(mode)) {
@@ -231,7 +237,7 @@ export const OnboardingPage: React.FC = () => {
               {addresses.length === 0 ? (
                 <div className="p-4 border border-dashed border-outline-variant rounded-xl text-center">
                   <p className="text-on-surface-variant text-[13px] mb-2">No delivery locations found.</p>
-                  <button className="text-primary text-[13px] font-bold">+ Add New Location</button>
+                  <button onClick={() => setIsLocationModalOpen(true)} type="button" className="text-primary text-[13px] font-bold">+ Add New Location</button>
                 </div>
               ) : (
                 addresses.map((addr, idx) => {
@@ -280,6 +286,16 @@ export const OnboardingPage: React.FC = () => {
                   );
                 })
               )}
+              {addresses.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsLocationModalOpen(true)}
+                  className="w-full mt-2 p-3.5 rounded-xl border border-dashed border-primary/50 text-primary font-bold hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">add_location</span>
+                  Add New Location
+                </button>
+              )}
             </div>
           </section>
 
@@ -293,6 +309,14 @@ export const OnboardingPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <LocationModal 
+        isOpen={isLocationModalOpen} 
+        onClose={() => {
+          setIsLocationModalOpen(false);
+          fetchAddresses();
+        }} 
+      />
     </div>
   );
 };
