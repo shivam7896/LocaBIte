@@ -162,12 +162,17 @@ export const CheckoutPage: React.FC = () => {
             }
           }
         } catch (payErr) {
-          console.warn('Razorpay checkout initialization note:', payErr);
+          console.error('Razorpay checkout initialization error:', payErr);
+          setIsPlacingOrder(false);
+          alert('Failed to initialize payment gateway. Please try Cash on Delivery or contact support.');
+          return;
         }
       }
 
-      // Default COD or simulated instant checkout
-      finalizeOrder(targetId);
+      // Finalize only for COD
+      if (paymentMethod === 'Cash on Delivery') {
+        finalizeOrder(targetId);
+      }
     } catch (err: any) {
       console.error('Order creation error:', err);
       setIsPlacingOrder(false);

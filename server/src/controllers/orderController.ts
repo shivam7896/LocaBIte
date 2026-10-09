@@ -315,13 +315,15 @@ export class OrderController {
         return sendError(res, 'Order not found', 404);
       }
 
-      if (!['placed', 'confirmed'].includes(order.status)) {
+      if (!['payment_pending', 'placed', 'confirmed'].includes(order.status)) {
         return sendError(
           res,
           `Order cannot be cancelled in '${order.status}' stage as meal preparation has begun.`,
           400
         );
       }
+      
+      const previousStatus = order.status;
 
       order.status = 'cancelled';
       order.cancellationReason = reason || 'Cancelled by customer';
@@ -335,14 +337,16 @@ export class OrderController {
 
       emitOrderStatusUpdate(order.id, order);
 
-      // Dispatch cancellation email
-      EmailService.sendOrderNotification({
-        order,
-        event: 'status_update',
-        statusNote: reason || 'Cancelled by customer'
-      }).catch(err => {
-        logger.error(`[ORDER] Failed to dispatch cancellation email for #${order.orderNumber}: ${err.message}`);
-      });
+      // Dispatch cancellation email only if it wasn't just a cancelled payment
+      if (previousStatus !== 'payment_pending') {
+        EmailService.sendOrderNotification({
+          order,
+          event: 'status_update',
+          statusNote: reason || 'Cancelled by customer'
+        }).catch(err => {
+          logger.error(`[ORDER] Failed to dispatch cancellation email for #${order.orderNumber}: ${err.message}`);
+        });
+      }
 
       return sendResponse({
         res,
