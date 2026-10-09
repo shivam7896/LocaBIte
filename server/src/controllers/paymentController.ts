@@ -101,11 +101,11 @@ export class PaymentController {
 
       order.paymentStatus = 'paid';
       order.razorpayPaymentId = razorpayPaymentId;
-      order.status = 'confirmed';
+      order.status = 'placed';
       order.statusTimeline.push({
-        status: 'confirmed',
+        status: 'placed',
         timestamp: new Date(),
-        note: `Payment verified via Razorpay (${razorpayPaymentId}). Restaurant confirmed order.`
+        note: `Payment verified via Razorpay (${razorpayPaymentId}). Order placed.`
       });
 
       await order.save();
@@ -196,11 +196,29 @@ export class PaymentController {
           const order = await Order.findOne({ razorpayOrderId });
           if (order && order.paymentStatus !== 'paid') {
             order.paymentStatus = 'paid';
-            if (order.status === 'placed') {
-              order.status = 'confirmed';
+            if (order.status === 'payment_pending') {
+              order.status = 'placed';
             }
             await order.save();
             emitOrderStatusUpdate(order.id, order);
+            
+            // Broadcast and notify if status was just placed
+            if (order.status === 'placed') {
+              emitNewOrderBroadcast(order);
+              EmailService.sendOrderNotification({ order, event: 'confirmed' }).catch(e => logger.error(`[Webhook Email Error] ${e.message}`));
+              emitLiveNotification({
+                role: 'admin',
+                type: 'new_order',
+                title: '🔔 New Order Received (Webhook)!',
+                message: `Order #${order.orderNumber} for ₹${order.totalToPay} received from ${order.deliveryAddress?.building || 'Campus'}.`,
+                orderId: order.id,
+                orderNumber: order.orderNumber,
+                totalToPay: order.totalToPay,
+                customerName: order.deliveryAddress?.title || 'Campus Member',
+                address: `${order.deliveryAddress?.building}, ${order.deliveryAddress?.room}`
+              });
+            }
+            
             logger.info(`[Webhook] Order ${order.id} marked as paid via webhook (${event})`);
           }
         }

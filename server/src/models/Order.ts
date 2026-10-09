@@ -3,6 +3,7 @@ import { UserAddress } from '../types';
 import { ICartItem } from './Cart';
 
 export type OrderStatus =
+  | 'payment_pending'
   | 'placed'
   | 'confirmed'
   | 'prepared'
@@ -106,6 +107,7 @@ const OrderSchema = new Schema<IOrder>(
     status: {
       type: String,
       enum: [
+        'payment_pending',
         'placed',
         'confirmed',
         'prepared',
