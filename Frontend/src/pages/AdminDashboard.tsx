@@ -1124,7 +1124,7 @@ export const AdminDashboard: React.FC = () => {
             )}
 
             <button
-              onClick={() => handleAdminQuickLogin(false)}
+              onClick={() => alert('Please log in via the main authentication page with a Super Admin account.')}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold text-[12px] border transition-colors shadow-2xs ${
                 isAdminAuthenticated
                   ? 'bg-secondary/15 border-secondary/30 text-secondary'
@@ -1162,7 +1162,7 @@ export const AdminDashboard: React.FC = () => {
               )}
             </div>
             <button
-              onClick={() => handleAdminQuickLogin(false)}
+              onClick={() => alert('Please log in via the main authentication page with a Super Admin account.')}
               disabled={isElevatingAuth}
               className="px-4 py-1.5 rounded-lg bg-primary text-on-primary font-bold text-xs shadow-xs hover:bg-primary-container transition-all flex items-center gap-1.5 shrink-0"
             >

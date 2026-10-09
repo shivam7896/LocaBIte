@@ -131,7 +131,7 @@ export interface CartItem {
 export interface Address {
   id: string;
   title: string;
-  type: 'hostel' | 'department' | 'home' | 'other';
+  type: 'hostel' | 'department' | 'home' | 'apartment' | 'other';
   campus: string;
   building: string;
   room: string;
