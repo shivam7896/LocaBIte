@@ -28,6 +28,8 @@ export const OnboardingPage: React.FC = () => {
     api.auth.getAddresses().then(res => {
       if (res.success && res.data && res.data.addresses && res.data.addresses.length > 0) {
         setAddresses(res.data.addresses);
+        const primaryIdx = res.data.addresses.findIndex((a: Address) => a.isPrimary);
+        setSelectedHostelIndex(primaryIdx >= 0 ? primaryIdx : res.data.addresses.length - 1);
       }
     }).catch(e => console.warn('Load addresses error:', e));
   };
