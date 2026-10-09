@@ -16,7 +16,8 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
   const [addresses, setAddresses] = useState<Address[]>(user?.addresses || (selectedAddress ? [selectedAddress] : []));
   const [view, setView] = useState<'list' | 'map' | 'details'>('list');
   const [pendingLocation, setPendingLocation] = useState<any>(null);
-  const [addressForm, setAddressForm] = useState({ room: '', landmark: '', phone: user?.phone || '' });
+  const defaultPhone = user?.phone?.startsWith('G-') ? '' : (user?.phone || '');
+  const [addressForm, setAddressForm] = useState({ room: '', landmark: '', phone: defaultPhone });
 
   useEffect(() => {
     if (isOpen) {
@@ -48,7 +49,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({ isOpen, onClose })
 
   const handleLocationSelected = (addressDetails: { title: string; fullAddress: string; lat: number; lng: number }) => {
     setPendingLocation(addressDetails);
-    setAddressForm(prev => ({ ...prev, phone: user?.phone || '' }));
+    setAddressForm(prev => ({ ...prev, phone: defaultPhone }));
     setView('details');
   };
 
