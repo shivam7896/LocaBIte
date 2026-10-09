@@ -301,50 +301,7 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Quick One-Click Admin Auth
-  const handleAdminQuickLogin = async (silent = false) => {
-    setIsElevatingAuth(true);
-    setAdminAuthError(null);
-    try {
-      let res = await api.auth.verifyOtp('shivam789612@gmail.com', '789612');
-      if (!res.success) {
-        res = await api.auth.login('shivam789612@gmail.com', '789612');
-      }
-      if (!res.success) {
-        res = await api.auth.verifyOtp('sk866436@gmail.com', '789612');
-      }
-      if (!res.success) {
-        res = await api.auth.login('sk866436@gmail.com', '789612');
-      }
-      if (!res.success) {
-        res = await api.auth.verifyOtp('admin@locabite.com', '789612');
-      }
-      if (!res.success) {
-        res = await api.auth.login('admin@locabite.com', 'AdminPassword@123');
-      }
-      if (res.success && res.data?.accessToken) {
-        localStorage.setItem('locabite_token', res.data.accessToken);
-        setAdminToken(res.data.accessToken);
-        setIsAdminAuthenticated(true);
-        if (!silent) {
-          showToast('👑 Successfully authenticated as Super Administrator');
-        }
-        await loadAdminData();
-      } else {
-        setAdminAuthError(res.message || 'Super Admin authentication failed');
-        if (!silent) {
-          showToast(res.message || 'Authentication failed. Please verify credentials.', true);
-        }
-      }
-    } catch (err: any) {
-      setAdminAuthError(err.message || 'Admin login connection error');
-      if (!silent) {
-        showToast(err.message || 'Admin login failed', true);
-      }
-    } finally {
-      setIsElevatingAuth(false);
-    }
-  };
+  // Quick One-Click Admin Auth has been removed for security
 
   // Load All Admin Data
   const loadAdminData = async () => {
@@ -372,7 +329,7 @@ export const AdminDashboard: React.FC = () => {
         api.admin.getAuditLogs()
       ]);
 
-      // If forbidden or unauthenticated, automatically elevate to Super Admin
+      // If forbidden or unauthenticated, handle it safely
       if (!statsRes.success || !productsRes.success || !merchantsRes.success) {
         const errorMsg = `${statsRes.message || ''} ${productsRes.message || ''}`.toLowerCase();
         if (
@@ -384,8 +341,8 @@ export const AdminDashboard: React.FC = () => {
           errorMsg.includes('forbidden') ||
           errorMsg.includes('unauthorized')
         ) {
-          console.warn('[Admin] Non-admin token detected. Elevating to Super Admin session...');
-          await handleAdminQuickLogin(true);
+          setIsAdminAuthenticated(false);
+          setAdminAuthError('Unauthorized access to admin panel.');
           return;
         }
       }
@@ -413,11 +370,12 @@ export const AdminDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    // If not authenticated as admin, automatically log in as admin
-    if (!adminToken || authUser?.role !== 'admin') {
-      handleAdminQuickLogin(true);
-    } else {
+    if (adminToken && authUser?.role === 'admin') {
       loadAdminData();
+    } else {
+      setIsLoading(false);
+      setIsAdminAuthenticated(false);
+      setAdminAuthError('Unauthorized access. Admin privileges required.');
     }
   }, [adminToken, authUser?.role]);
 
@@ -1082,6 +1040,26 @@ export const AdminDashboard: React.FC = () => {
     if (selectedMerchantId === 'all') return null;
     return merchants.find(m => m.id === selectedMerchantId);
   }, [merchants, selectedMerchantId]);
+
+  if (!isAdminAuthenticated && !isLoading) {
+    return (
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center font-sans text-on-surface p-4">
+        <div className="max-w-md w-full bg-surface-container-lowest p-8 rounded-3xl shadow-level-3 border border-outline-variant/30 text-center">
+          <span className="material-symbols-outlined text-[64px] text-error mb-4">gpp_bad</span>
+          <h2 className="text-2xl font-extrabold text-on-surface mb-2">Access Denied</h2>
+          <p className="text-sm text-on-surface-variant mb-6">
+            {adminAuthError || 'You do not have administrative privileges to view this page.'}
+          </p>
+          <Link 
+            to="/" 
+            className="inline-flex items-center justify-center h-12 px-6 rounded-xl bg-primary text-on-primary font-bold transition-all hover:bg-primary-container"
+          >
+            Return to Homepage
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface flex flex-col font-sans text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed">
